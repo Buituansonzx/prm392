@@ -12,6 +12,11 @@
 
     <item
         android:id="@+id/nav_library"
-        android:icon="@drawable/icon_library"
-        android:title="Library" />
+        android:icon="@drawable/icon_setting"
+        android:title="Setting" />
+    <item
+        android:id="@+id/nav_user"
+        android:icon="@drawable/icon_user"
+        android:title="User"
+        />
 </menu>
