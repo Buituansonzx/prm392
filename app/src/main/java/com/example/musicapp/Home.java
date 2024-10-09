@@ -15,6 +15,8 @@ public class Home extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private PlaylistAdapter playlistAdapter;
+    private RecyclerView recyclerAlbum;
+    private AlbumsAdapter albumsAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -23,10 +25,12 @@ public class Home extends AppCompatActivity {
 
         // Thiết lập RecyclerView
         recyclerView = findViewById(R.id.recyclerview);
-
+        recyclerAlbum = findViewById(R.id.recyclerablbums);
         // Thiết lập LayoutManager cho RecyclerView (hiển thị ngang)
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager layoutManagerPlaylist = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager layoutManagerAlbum = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManagerPlaylist);
+        recyclerAlbum.setLayoutManager(layoutManagerAlbum);
 
         // Tạo danh sách playlist items (giả sử bạn có class PlaylistItem trong PlaylistAdapter)
         List<PlaylistAdapter.PlaylistItem> playlistItems = new ArrayList<>();
@@ -37,9 +41,18 @@ public class Home extends AppCompatActivity {
         playlistItems.add(new PlaylistAdapter.PlaylistItem("Song 1", "Artist 1", R.drawable.img));
         playlistItems.add(new PlaylistAdapter.PlaylistItem("Song 1", "Artist 1", R.drawable.img));
         // ... Thêm các mục khác nếu cần
+        List<AlbumsAdapter.AlbumsItem> albumItems = new ArrayList<>();
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
 
         // Thiết lập adapter và gán vào RecyclerView
         playlistAdapter = new PlaylistAdapter(playlistItems);
         recyclerView.setAdapter(playlistAdapter);
+        albumsAdapter = new AlbumsAdapter(albumItems);
+        recyclerAlbum.setAdapter(albumsAdapter);
     }
 }
