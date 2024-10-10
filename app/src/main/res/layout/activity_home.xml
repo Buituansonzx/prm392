@@ -8,6 +8,7 @@
     android:background="@drawable/gradient_background"
     tools:context=".Home">
 
+    <!-- Các thành phần như TextView, RecyclerView... -->
     <TextView
         android:id="@+id/madeforyou"
         android:layout_width="wrap_content"
@@ -27,7 +28,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/madeforyou" />
 
@@ -36,13 +36,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="356dp"
-        android:text="Albums"
+        android:layout_marginTop="32dp"
+        android:text="@string/my_albums"
         android:textColor="@color/white"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/recyclerview" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerablbums"
@@ -50,7 +50,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/albums" />
 
@@ -64,6 +63,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center"
@@ -82,27 +82,38 @@
             android:src="@mipmap/logomusic2" />
     </androidx.cardview.widget.CardView>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <!-- FrameLayout chứa nội dung chính -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recyclerablbums">
 
-        <!-- Nội dung chính của Activity -->
-        <FrameLayout
-            android:id="@+id/fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/bottom_navigation" />
-
-        <!-- BottomNavigationView -->
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btn_add_album"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            app:menu="@layout/bottom_nav_menu"
-            android:background="@color/gray"/>
+            android:layout_gravity="center"
+            android:text="+ ALBUM"
+            android:textStyle="bold"
+            android:textColor="@color/button_text_color"
+            android:background="@drawable/ripple_effect"
+            android:backgroundTint="#AAA2B4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </FrameLayout>
 
-    </RelativeLayout>
-
+    <!-- BottomNavigationView -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@layout/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

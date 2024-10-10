@@ -30,7 +30,6 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
     public void onBindViewHolder(@NonNull AlbumsViewHolder holder, int position) {
         AlbumsItem currentItem = albumItems.get(position);
         holder.songNameTextView.setText(currentItem.getAlbumName());
-        holder.artistNameTextView.setText(currentItem.getArtistName());
 
         // Đặt hình ảnh cho ImageView. Bạn có thể sử dụng thư viện Glide hoặc Picasso để tải ảnh từ URL.
         holder.songImageView.setImageResource(currentItem.getImageResource());
@@ -57,12 +56,10 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
     // Playlist item model class
     public static class AlbumsItem {
         private String albumName;
-        private String artistName;
         private int imageResource;
 
-        public AlbumsItem(String albumName, String artistName, int imageResource) {
+        public AlbumsItem(String albumName, int imageResource) {
             this.albumName = albumName;
-            this.artistName = artistName;
             this.imageResource = imageResource;
         }
 
@@ -70,9 +67,6 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsView
             return albumName;
         }
 
-        public String getArtistName() {
-            return artistName;
-        }
 
         public int getImageResource() {
             return imageResource;

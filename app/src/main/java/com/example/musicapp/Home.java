@@ -42,12 +42,12 @@ public class Home extends AppCompatActivity {
         playlistItems.add(new PlaylistAdapter.PlaylistItem("Song 1", "Artist 1", R.drawable.img));
         // ... Thêm các mục khác nếu cần
         List<AlbumsAdapter.AlbumsItem> albumItems = new ArrayList<>();
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
-        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", "Artist 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
+        albumItems.add(new AlbumsAdapter.AlbumsItem("Album 1", R.drawable.img));
 
         // Thiết lập adapter và gán vào RecyclerView
         playlistAdapter = new PlaylistAdapter(playlistItems);
