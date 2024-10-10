@@ -2,4 +2,5 @@
     <string name="app_name">MusicApp</string>
     <string name="made_for_you">Made For You</string>
     <string name="my_albums">My Albums</string>
+    <string name="back">Back</string>
 </resources>
