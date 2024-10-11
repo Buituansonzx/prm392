@@ -3,4 +3,8 @@
     <string name="made_for_you">Made For You</string>
     <string name="my_albums">My Albums</string>
     <string name="back">Back</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="setting">Setting</string>
+    <string name="user">User</string>
 </resources>

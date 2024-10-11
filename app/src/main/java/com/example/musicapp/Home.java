@@ -1,11 +1,15 @@
 package com.example.musicapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +25,30 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home); // Đảm bảo tệp layout của bạn tên là activity_home.xml
+        setContentView(R.layout.activity_home);
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // Thiết lập item đã chọn là Home
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+
+        // Xử lý sự kiện chọn item
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            Intent intent = null;
+            if(item.getItemId() == R.id.nav_home){
+                return true;
+            }else if(item.getItemId() == R.id.nav_search){
+                intent = new Intent(this, SearchActivity.class);
+            }else if(item.getItemId() == R.id.nav_setting){
+                intent = new Intent(this, SettingActivity.class);
+            }else if(item.getItemId() == R.id.nav_user){
+                intent = new Intent(this, UserActivity.class);
+            }
+            if (intent != null) {
+                startActivity(intent);
+                finish();
+            }
+            return true;
+        });
 
         // Thiết lập RecyclerView
         recyclerView = findViewById(R.id.recyclerview);
