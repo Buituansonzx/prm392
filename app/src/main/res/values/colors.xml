@@ -3,8 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gray">#939393</color>
-    <color name="button_bg_color">#3CC141</color> <!-- Màu nền của Button -->
     <color name="button_text_color">#FFFFFF</color> <!-- Màu chữ của Button -->
-    <color name="button_pressed_color">#08740D</color> <!-- Màu khi nhấn Button -->
-
+    <color name="button_pressed_color">#FF4081</color> <!-- Ví dụ về màu ripple khi nhấn -->
+    <color name="button_bg_color">#3F51B5</color>
 </resources>
