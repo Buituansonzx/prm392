@@ -14,27 +14,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="136dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="UserName"
+        android:hint="@string/username"
         android:inputType="text"
         android:textColor="#FFFFFF"
         android:textColorHint="#898282"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/circleImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/passwordd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="64dp"
         android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="Password"
+        android:hint="@string/password"
         android:inputType="textPassword"
         android:textColorHint="#898282"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,11 +46,12 @@
         android:id="@+id/remember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="56dp"
-        android:text="Remember me"
+        android:text="@string/remember_me"
         android:textColor="#ABA7A7"
-        app:layout_constraintTop_toBottomOf="@+id/password"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/passwordd" />
 
     <Button
         android:id="@+id/btn_login"
@@ -60,7 +61,7 @@
         android:layout_marginTop="60dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="#696C6F"
-        android:text="Log In"
+        android:text="@string/log_in"
         app:cornerRadius="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -72,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:text="Sign Up for MusicApp"
+        android:text="@string/sign_up_for_musicapp"
         android:textColor="#979393"
         android:textSize="17dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,17 +81,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_login" />
 
-    <ImageView
-        android:id="@+id/circleImageView"
-        android:layout_width="151dp"
-        android:layout_height="136dp"
-        android:layout_marginTop="100dp"
-        android:scaleType="centerCrop"
-        android:src="@mipmap/logomusic2"
-        android:background="@drawable/cornerimageview"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dp"
+        app:cardCornerRadius="50dp"
+        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/circleImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/logomusic2" />
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
