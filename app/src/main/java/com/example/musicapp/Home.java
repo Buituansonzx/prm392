@@ -2,22 +2,17 @@ package com.example.musicapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Home extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private PlaylistAdapter playlistAdapter;
     private RecyclerView recyclerAlbum;
     private AlbumsAdapter albumsAdapter;
@@ -51,7 +46,7 @@ public class Home extends AppCompatActivity {
         });
 
         // Thiết lập RecyclerView
-        recyclerView = findViewById(R.id.recyclerview);
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
         recyclerAlbum = findViewById(R.id.recyclerablbums);
         // Thiết lập LayoutManager cho RecyclerView (hiển thị ngang)
         LinearLayoutManager layoutManagerPlaylist = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);

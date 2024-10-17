@@ -101,7 +101,6 @@
             android:textStyle="bold"
             android:textColor="@color/button_text_color"
             android:background="@drawable/ripple_effect"
-            android:backgroundTint="#AAA2B4"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
