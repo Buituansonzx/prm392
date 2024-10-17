@@ -74,6 +74,30 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return null; // Return null if user is not found
     }
+    public User getUserById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        User user = null;
+
+        String[] columns = {
+                "id", "username", "password", "phoneNumber", "role"
+        };
+        String selection = "id = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+
+        Cursor cursor = db.query("TABLE_USERS", columns, selection, selectionArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            String username = cursor.getString(1);
+            String password = cursor.getString(2);
+            String phoneNumber = cursor.getString(3);
+            String role = cursor.getString(4);
+
+            user = new User(id, username, password, phoneNumber, role);
+        }
+
+        cursor.close();
+        return user;
+    }
 
     // Get all user details
     public Cursor getUserDetails() {
@@ -82,5 +106,29 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         Log.d("DBHelper", "getUserDetails query executed. Cursor count: " + cursor.getCount());
         return cursor;
+    }
+    public User getUserByPhoneAndPassword(String phoneNumber, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        User user = null;
+
+        String[] columns = {
+                "id", "username", "password", "phoneNumber", "role"
+        };
+        String selection = "phoneNumber = ? AND password = ?";
+        String[] selectionArgs = {phoneNumber, password};
+
+        Cursor cursor = db.query("TABLE_USERS", columns, selection, selectionArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            String username = cursor.getString(1);
+            String phone = cursor.getString(3);
+            String role = cursor.getString(4);
+
+            user = new User(id, username, password, phone, role);
+        }
+
+        cursor.close();
+        return user;
     }
 }

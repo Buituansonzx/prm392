@@ -22,6 +22,8 @@ public class User {
         this.role = role;
     }
 
+
+
     // Getters and Setters for all fields
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
