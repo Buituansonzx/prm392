@@ -9,6 +9,7 @@ import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static final String TAG = "DBHelper";
     private static final String DATABASE_NAME = "Users.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_USERS = "users";
@@ -26,24 +27,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // Create table with id, username, password, phone, and role
         String createTable = "CREATE TABLE " + TABLE_USERS + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + COLUMN_USERNAME + " TEXT, "
-                + COLUMN_PASSWORD + " TEXT, "
-                + COLUMN_PHONE + " TEXT, "
-                + COLUMN_ROLE + " TEXT)";
+                + COLUMN_USERNAME + " TEXT NOT NULL, "
+                + COLUMN_PASSWORD + " TEXT NOT NULL, "
+                + COLUMN_PHONE + " TEXT UNIQUE NOT NULL, "
+                + COLUMN_ROLE + " TEXT NOT NULL)";
         db.execSQL(createTable);
+        Log.d(TAG, "Database tables created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Drop older table if exists, and create it again
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
+        Log.d(TAG, "Database upgraded from version " + oldVersion + " to " + newVersion);
     }
 
-    // Insert user
     public boolean addUser(String username, String password, String phone, String role) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -53,82 +53,73 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_ROLE, role);
 
         long result = db.insert(TABLE_USERS, null, contentValues);
-        return result != -1; // return true if insert succeeds
+        Log.d(TAG, "Add user result: " + result);
+        return result != -1;
     }
-
-    // Get a specific user by username and password
-    public User getUser(String username, String password) {
+    public boolean isPhoneNumberExists(String phoneNumber) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_USERS,
-                new String[]{COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE},
-                COLUMN_USERNAME + "=? AND " + COLUMN_PASSWORD + "=?",
-                new String[]{username, password},
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
+                COLUMN_PHONE + "=?", new String[]{phoneNumber},
                 null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            // Create User object from the retrieved data
-            User user = new User(cursor.getInt(0), cursor.getString(1), cursor.getString(2),
-                    cursor.getString(3), cursor.getString(4));
-            cursor.close(); // Close cursor to avoid memory leaks
-            return user;
-        }
-        return null; // Return null if user is not found
+        boolean exists = (cursor.getCount() > 0);
+        cursor.close();
+        return exists;
     }
     public User getUserById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         User user = null;
 
-        String[] columns = {
-                "id", "username", "password", "phoneNumber", "role"
-        };
-        String selection = "id = ?";
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE};
+        String selection = COLUMN_ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
 
-        Cursor cursor = db.query("TABLE_USERS", columns, selection, selectionArgs, null, null, null);
-
-        if (cursor.moveToFirst()) {
-            String username = cursor.getString(1);
-            String password = cursor.getString(2);
-            String phoneNumber = cursor.getString(3);
-            String role = cursor.getString(4);
-
-            user = new User(id, username, password, phoneNumber, role);
+        try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                user = new User(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4)
+                );
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user by ID: " + e.getMessage());
         }
 
-        cursor.close();
         return user;
     }
 
-    // Get all user details
     public Cursor getUserDetails() {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS;
         Cursor cursor = db.rawQuery(query, null);
-        Log.d("DBHelper", "getUserDetails query executed. Cursor count: " + cursor.getCount());
+        Log.d(TAG, "getUserDetails query executed. Cursor count: " + cursor.getCount());
         return cursor;
     }
+
     public User getUserByPhoneAndPassword(String phoneNumber, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         User user = null;
 
-        String[] columns = {
-                "id", "username", "password", "phoneNumber", "role"
-        };
-        String selection = "phoneNumber = ? AND password = ?";
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE};
+        String selection = COLUMN_PHONE + " = ? AND " + COLUMN_PASSWORD + " = ?";
         String[] selectionArgs = {phoneNumber, password};
 
-        Cursor cursor = db.query("TABLE_USERS", columns, selection, selectionArgs, null, null, null);
-
-        if (cursor.moveToFirst()) {
-            int id = cursor.getInt(0);
-            String username = cursor.getString(1);
-            String phone = cursor.getString(3);
-            String role = cursor.getString(4);
-
-            user = new User(id, username, password, phone, role);
+        try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                user = new User(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4)
+                );
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user by phone and password: " + e.getMessage());
         }
 
-        cursor.close();
         return user;
     }
 }

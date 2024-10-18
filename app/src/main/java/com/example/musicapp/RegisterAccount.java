@@ -43,7 +43,10 @@ public class RegisterAccount extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
         String phoneNumber = etPhoneNumber.getText().toString().trim();
-
+        if (dbHelper.isPhoneNumberExists(phoneNumber)) {
+            Toast.makeText(this, "Phone number already exists. Please use a different number.", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (validateInput(username, password, confirmPassword, phoneNumber)) {
             String role = "user";
             boolean success = dbHelper.addUser(username, password, phoneNumber, role);
@@ -64,9 +67,7 @@ public class RegisterAccount extends AppCompatActivity {
             startActivity(intent);
             finish();
         } else {
-            Intent intent = new Intent(this, login.class);
-            startActivity(intent);
-            finish();
+            backToLogin();
         }
     }
 
@@ -91,7 +92,7 @@ public class RegisterAccount extends AppCompatActivity {
     }
 
     public void backToLogin(View view) {
-        finish();
+        backToLogin();
     }
 
     private void backToLogin() {

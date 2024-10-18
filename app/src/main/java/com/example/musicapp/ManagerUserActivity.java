@@ -61,25 +61,17 @@ public class ManagerUserActivity extends AppCompatActivity {
             cursor = dbHelper.getUserDetails();
             Log.d(TAG, "Cursor returned from database: " + (cursor != null ? cursor.getCount() : "null"));
             if (cursor != null && cursor.moveToFirst()) {
-                int usernameIndex = cursor.getColumnIndex(DBHelper.COLUMN_USERNAME);
-                int phoneIndex = cursor.getColumnIndex(DBHelper.COLUMN_PHONE);
-                int roleIndex = cursor.getColumnIndex(DBHelper.COLUMN_ROLE);
-
-                Log.d(TAG, "Column indices - Username: " + usernameIndex + ", Phone: " + phoneIndex + ", Role: " + roleIndex);
-
-                if (usernameIndex != -1 && phoneIndex != -1 && roleIndex != -1) {
-                    do {
-                        User user = new User(
-                                cursor.getString(usernameIndex),
-                                cursor.getString(phoneIndex),
-                                cursor.getString(roleIndex)
-                        );
-                        users.add(user);
-                        Log.d(TAG, "User added: " + user.toString());
-                    } while (cursor.moveToNext());
-                } else {
-                    throw new Exception("One or more columns not found in the cursor");
-                }
+                do {
+                    User user = new User(
+                            cursor.getInt(0),  // id
+                            cursor.getString(1),  // username
+                            cursor.getString(2),  // password
+                            cursor.getString(3),  // phone
+                            cursor.getString(4)   // role
+                    );
+                    users.add(user);
+                    Log.d(TAG, "User added: " + user.toString());
+                } while (cursor.moveToNext());
             }
         } catch (Exception e) {
             Log.e(TAG, "Error loading user data", e);
@@ -101,6 +93,6 @@ public class ManagerUserActivity extends AppCompatActivity {
     private void hideEmptyState() {
         Log.d(TAG, "Hiding empty state");
         userRecyclerView.setVisibility(View.VISIBLE);
-        findViewById(R.id.emptyStateView).setVisibility(View.GONE);
+        findViewById(R.id.emptyStateView).setVisibility(View .GONE);
     }
 }

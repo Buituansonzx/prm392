@@ -21,7 +21,9 @@
 
         <activity
             android:name=".HomeAdminActivity"
-            android:exported="false" />
+            android:exported="true">
+
+        </activity>
 
         <activity android:name=".ManagerUserActivity"
             android:exported="true">
@@ -55,7 +57,9 @@
 
         <activity
             android:name=".Home"
-            android:exported="true" />
+            android:exported="true">
+
+        </activity>
 
         <activity
             android:name=".MainActivity"
