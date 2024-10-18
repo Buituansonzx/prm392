@@ -6,53 +6,68 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterAccount extends AppCompatActivity {
 
-    EditText etUsername, etPassword, etConfirmPassword, etPhoneNumber;
-    Button btnRegister;
-    DBHelper dbHelper;
+    private EditText etUsername, etPassword, etConfirmPassword, etPhoneNumber;
+    private Button btnRegister;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_account);
 
-        etUsername = findViewById(R.id.username);
-        etPassword = findViewById(R.id.password);
-        etConfirmPassword = findViewById(R.id.confirmPassword);
-        etPhoneNumber = findViewById(R.id.phone_number);
-        btnRegister = findViewById(R.id.btn_register);
-
+        initializeViews();
         dbHelper = new DBHelper(this);
 
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = etUsername.getText().toString().trim();
-                String password = etPassword.getText().toString().trim();
-                String confirmPassword = etConfirmPassword.getText().toString().trim();
-                String phoneNumber = etPhoneNumber.getText().toString().trim();
-
-                if (validateInput(username, password, confirmPassword, phoneNumber)) {
-                    // Assuming all new users are regular users, setting role to "user"
-                    String role = "user"; // Can be set to "admin" based on your logic
-
-                    boolean success = dbHelper.addUser(username, password, phoneNumber, role);
-                    if (success) {
-                        Toast.makeText(RegisterAccount.this, "Registration Successful", Toast.LENGTH_SHORT).show();
-                        // Navigate to ManagerUserActivity
-                        Intent intent = new Intent(RegisterAccount.this, login.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Toast.makeText(RegisterAccount.this, "Registration Failed", Toast.LENGTH_SHORT).show();
-                    }
-                }
+                registerUser();
             }
         });
+    }
+
+    private void initializeViews() {
+        etUsername = findViewById(R.id.username);
+        etPassword = findViewById(R.id.password);
+        etConfirmPassword = findViewById(R.id.confirmPassword);
+        etPhoneNumber = findViewById(R.id.phone_number);
+        btnRegister = findViewById(R.id.btn_register);
+    }
+
+    private void registerUser() {
+        String username = etUsername.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+        String confirmPassword = etConfirmPassword.getText().toString().trim();
+        String phoneNumber = etPhoneNumber.getText().toString().trim();
+
+        if (validateInput(username, password, confirmPassword, phoneNumber)) {
+            String role = "user";
+            boolean success = dbHelper.addUser(username, password, phoneNumber, role);
+            if (success) {
+                Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
+                loginUser(phoneNumber, password);
+            } else {
+                Toast.makeText(this, "Registration Failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void loginUser(String phoneNumber, String password) {
+        User user = dbHelper.getUserByPhoneAndPassword(phoneNumber, password);
+        if (user != null) {
+            Intent intent = new Intent(this, Home.class);
+            intent.putExtra("USER_ID", user.getId());
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(this, login.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private boolean validateInput(String username, String password, String confirmPassword, String phoneNumber) {
@@ -73,5 +88,15 @@ public class RegisterAccount extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    public void backToLogin(View view) {
+        finish();
+    }
+
+    private void backToLogin() {
+        Intent intent = new Intent(this, login.class);
+        startActivity(intent);
+        finish();
     }
 }
