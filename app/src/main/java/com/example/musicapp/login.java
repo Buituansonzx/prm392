@@ -74,13 +74,13 @@ public class login extends AppCompatActivity {
                     Toast.makeText(this, "Login Successful as User", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, Home.class);
                     intent.putExtra(EXTRA_USER_ID, user.getId());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else if ("admin".equalsIgnoreCase(user.getRole())) {
                     Toast.makeText(this, "Login Successful as Admin", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, HomeAdminActivity.class);
                     intent.putExtra(EXTRA_USER_ID, user.getId());
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, "Invalid user role", Toast.LENGTH_SHORT).show();
