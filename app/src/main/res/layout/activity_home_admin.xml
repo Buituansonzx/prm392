@@ -46,6 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:text="@string/manager_user"
+        android:textColor="@color/black"
+        android:onClick="ManagerUsers"
         android:backgroundTint="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
