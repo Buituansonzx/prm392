@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,9 +15,13 @@ import java.util.List;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
 
     private List<User> users;
-
-    public UserAdapter(List<User> users) {
+    private OnUserDeleteListener deleteListener;
+    public interface OnUserDeleteListener {
+        void onUserDelete(User user);
+    }
+    public UserAdapter(List<User> users, OnUserDeleteListener deleteListener) {
         this.users = users;
+        this.deleteListener = deleteListener;
     }
 
     @NonNull
@@ -29,8 +34,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = users.get(position);
-        Log.d("UserAdapter", "Binding user: " + user.toString());
         holder.bind(user);
+        holder.deleteButton.setOnClickListener(v -> {
+            if (deleteListener != null) {
+                deleteListener.onUserDelete(user);
+            }
+        });
     }
 
     @Override
@@ -47,12 +56,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         private TextView usernameTextView;
         private TextView phoneTextView;
         private TextView roleTextView;
+        private Button deleteButton;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
             usernameTextView = itemView.findViewById(R.id.usernameTextView);
             phoneTextView = itemView.findViewById(R.id.phoneTextView);
             roleTextView = itemView.findViewById(R.id.roleTextView);
+            deleteButton = itemView.findViewById(R.id.btn_detail);
         }
 
         public void bind(User user) {

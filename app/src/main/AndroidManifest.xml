@@ -13,14 +13,17 @@
         android:theme="@style/Theme.MusicApp"
         tools:targetApi="31">
         <activity
+            android:name=".song_item"
+            android:exported="false" />
+        <activity
             android:name=".manage_song"
             android:exported="false" />
         <activity
             android:name=".RegisterAccount"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".HomeAdminActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".ManagerUserActivity"
             android:exported="true">
@@ -32,7 +35,7 @@
         </activity>
         <activity
             android:name=".login"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".UserActivity"
             android:exported="true" />
@@ -47,7 +50,7 @@
             android:exported="true" />
         <activity
             android:name=".Home"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true" />

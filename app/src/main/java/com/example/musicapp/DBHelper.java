@@ -10,7 +10,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DBHelper";
-    private static final String DATABASE_NAME = "Users.db";
+    private static final String DATABASE_NAME = "MelodyBox.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_USERS = "users";
 
@@ -36,7 +36,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createTable);
         Log.d(TAG, "Database tables created");
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
@@ -55,6 +54,10 @@ public class DBHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_USERS, null, contentValues);
         Log.d(TAG, "Add user result: " + result);
         return result != -1;
+    }
+    public boolean deleteUser(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete("users", "id=?", new String[]{String.valueOf(userId)}) > 0;
     }
     public boolean isPhoneNumberExists(String phoneNumber) {
         SQLiteDatabase db = this.getReadableDatabase();

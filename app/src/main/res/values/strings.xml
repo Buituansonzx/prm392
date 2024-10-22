@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MusicApp</string>
+    <string name="app_name">Melody Box</string>
     <string name="made_for_you">Made For You</string>
     <string name="my_albums">My Albums</string>
     <string name="back">Back</string>
@@ -19,5 +19,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="your_name">Your Name</string>
     <string name="register">Register</string>
-
+    <string name="analytics">Analytics</string>
+    <string name="profile">Profile</string>
+    <string name="delete">Delete</string>
 </resources>
