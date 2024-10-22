@@ -63,7 +63,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             usernameTextView = itemView.findViewById(R.id.usernameTextView);
             phoneTextView = itemView.findViewById(R.id.phoneTextView);
             roleTextView = itemView.findViewById(R.id.roleTextView);
-            deleteButton = itemView.findViewById(R.id.deleteButton);
+            deleteButton = itemView.findViewById(R.id.btn_detail);
         }
 
         public void bind(User user) {
