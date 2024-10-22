@@ -19,5 +19,7 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="your_name">Your Name</string>
     <string name="register">Register</string>
+    <string name="analytics">Analytics</string>
+    <string name="profile">Profile</string>
 
 </resources>
