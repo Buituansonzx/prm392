@@ -10,7 +10,7 @@ import android.util.Log;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DBHelper";
-    private static final String DATABASE_NAME = "Users.db";
+    private static final String DATABASE_NAME = "MelodyBox.db";
     private static final int DATABASE_VERSION = 1;
     private static final String TABLE_USERS = "users";
 
