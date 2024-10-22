@@ -45,7 +45,12 @@ public class ManagerUserActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        userAdapter = new UserAdapter(new ArrayList<>());
+        userAdapter = new UserAdapter(new ArrayList<>(), new UserAdapter.OnUserDeleteListener() {
+            @Override
+            public void onUserDelete(User user) {
+                deleteUser(user);
+            }
+        });
         userRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         userRecyclerView.setAdapter(userAdapter);
     }
@@ -95,7 +100,19 @@ public class ManagerUserActivity extends AppCompatActivity {
         }
         return users;
     }
-
+    private void deleteUser(User user) {
+        new Thread(() -> {
+            boolean success = dbHelper.deleteUser(user.getId());
+            runOnUiThread(() -> {
+                if (success) {
+                    Toast.makeText(this, "User deleted successfully", Toast.LENGTH_SHORT).show();
+                    loadUserData(); // Reload the user list
+                } else {
+                    Toast.makeText(this, "Failed to delete user", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
+    }
     private void showEmptyState() {
         Log.d(TAG, "Showing empty state");
         userRecyclerView.setVisibility(View.GONE);
