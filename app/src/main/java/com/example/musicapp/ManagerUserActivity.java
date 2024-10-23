@@ -40,6 +40,7 @@ public class ManagerUserActivity extends AppCompatActivity {
         userRecyclerView = findViewById(R.id.userRecyclerView);
         dbHelper = new DBHelper(this);
         dbHelper.addUser("Admin","123456","0123456789","admin");
+        dbHelper.addUser("Admin2", "123456", "0123456788", "admin");
         setupRecyclerView();
         loadUserData();
     }
@@ -84,7 +85,8 @@ public class ManagerUserActivity extends AppCompatActivity {
                             cursor.getString(1),  // username
                             cursor.getString(2),  // password
                             cursor.getString(3),  // phone
-                            cursor.getString(4)   // role
+                            cursor.getString(4),  // role
+                            cursor.getString(5) // image
                     );
                     users.add(user);
                     Log.d(TAG, "User added: " + user.toString());

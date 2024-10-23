@@ -20,6 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PASSWORD = "password";
     public static final String COLUMN_PHONE = "phone";
     public static final String COLUMN_ROLE = "role";
+    public static final String COLUMN_IMAGE = "image";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,10 +33,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COLUMN_USERNAME + " TEXT NOT NULL, "
                 + COLUMN_PASSWORD + " TEXT NOT NULL, "
                 + COLUMN_PHONE + " TEXT UNIQUE NOT NULL, "
-                + COLUMN_ROLE + " TEXT NOT NULL)";
+                + COLUMN_ROLE + " TEXT NOT NULL, "
+                + COLUMN_IMAGE + " BLOB)"; // Thay đổi kiểu dữ liệu thành BLOB và bỏ NOT NULL
         db.execSQL(createTable);
         Log.d(TAG, "Database tables created");
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
@@ -43,22 +46,27 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Database upgraded from version " + oldVersion + " to " + newVersion);
     }
 
-    public boolean addUser(String username, String password, String phone, String role) {
+    public boolean addUser(String username, String password, String phone, String role, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_USERNAME, username);
         contentValues.put(COLUMN_PASSWORD, password);
         contentValues.put(COLUMN_PHONE, phone);
         contentValues.put(COLUMN_ROLE, role);
+        if (image != null) {
+            contentValues.put(COLUMN_IMAGE, image);
+        }
 
         long result = db.insert(TABLE_USERS, null, contentValues);
         Log.d(TAG, "Add user result: " + result);
         return result != -1;
     }
+
     public boolean deleteUser(int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete("users", "id=?", new String[]{String.valueOf(userId)}) > 0;
     }
+
     public boolean isPhoneNumberExists(String phoneNumber) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
@@ -68,22 +76,25 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         return exists;
     }
+
     public User getUserById(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         User user = null;
 
-        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE};
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE, COLUMN_IMAGE};
         String selection = COLUMN_ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
 
         try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
+                byte[] imageBytes = cursor.getBlob(5);
                 user = new User(
                         cursor.getInt(0),
                         cursor.getString(1),
                         cursor.getString(2),
                         cursor.getString(3),
-                        cursor.getString(4)
+                        cursor.getString(4),
+                        imageBytes
                 );
             }
         } catch (Exception e) {
@@ -105,18 +116,20 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         User user = null;
 
-        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE};
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE, COLUMN_IMAGE};
         String selection = COLUMN_PHONE + " = ? AND " + COLUMN_PASSWORD + " = ?";
         String[] selectionArgs = {phoneNumber, password};
 
         try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
+                byte[] imageBytes = cursor.getBlob(5);
                 user = new User(
                         cursor.getInt(0),
                         cursor.getString(1),
                         cursor.getString(2),
                         cursor.getString(3),
-                        cursor.getString(4)
+                        cursor.getString(4),
+                        imageBytes
                 );
             }
         } catch (Exception e) {
