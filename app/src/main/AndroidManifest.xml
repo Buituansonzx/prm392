@@ -13,9 +13,6 @@
         android:theme="@style/Theme.MusicApp"
         tools:targetApi="31">
         <activity
-            android:name=".song_item"
-            android:exported="false" />
-        <activity
             android:name=".manage_song"
             android:exported="false" />
         <activity
@@ -35,7 +32,8 @@
         </activity>
         <activity
             android:name=".login"
-            android:exported="true" />
+            android:exported="true">
+        </activity>
         <activity
             android:name=".UserActivity"
             android:exported="true" />

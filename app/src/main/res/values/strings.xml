@@ -22,4 +22,8 @@
     <string name="analytics">Analytics</string>
     <string name="profile">Profile</string>
     <string name="delete">Delete</string>
+    <string name="song_name">Song name</string>
+    <string name="singer_name">singer name</string>
+    <string name="date_time">date time</string>
+    <string name="detail">Detail</string>
 </resources>

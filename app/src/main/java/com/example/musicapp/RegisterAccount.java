@@ -49,7 +49,9 @@ public class RegisterAccount extends AppCompatActivity {
         }
         if (validateInput(username, password, confirmPassword, phoneNumber)) {
             String role = "user";
+
             boolean success = dbHelper.addUser(username, password, phoneNumber, role,null);
+
             if (success) {
                 Toast.makeText(this, "Registration Successful", Toast.LENGTH_SHORT).show();
                 loginUser(phoneNumber, password);
