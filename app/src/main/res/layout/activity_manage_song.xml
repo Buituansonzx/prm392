@@ -16,7 +16,6 @@
             android:background="@color/black"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:title="Manager Song"
             app:navigationIcon="@drawable/arrow_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,7 +35,6 @@
             android:padding="16dp">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/songRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:contentDescription="List of User" />

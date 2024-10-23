@@ -12,6 +12,22 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Cập nhật ImageView cho avatar -->
+        <ImageView
+            android:id="@+id/avatarImageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="8dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Avatar"
+            android:scaleType="centerCrop"
+            android:src="@drawable/default_avatar"
+            app:layout_constraintBottom_toBottomOf="@id/usernameTextView"
+            app:layout_constraintEnd_toStartOf="@id/usernameTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Các phần còn lại giữ nguyên -->
         <TextView
             android:id="@+id/usernameTextView"
             android:layout_width="0dp"
@@ -19,7 +35,7 @@
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="@android:color/black"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/avatarImageView"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toStartOf="@id/btn_detail"/>
 

@@ -39,7 +39,8 @@ public class ManagerUserActivity extends AppCompatActivity {
         });
         userRecyclerView = findViewById(R.id.songRecyclerView);
         dbHelper = new DBHelper(this);
-        dbHelper.addUser("Admin","123456","0123456789","admin");
+        dbHelper.addUser("Admin","123456","0123456789","admin",null);
+        dbHelper.addUser("Admin2", "123456", "0123456788", "admin",null);
         setupRecyclerView();
         loadUserData();
     }
@@ -80,11 +81,15 @@ public class ManagerUserActivity extends AppCompatActivity {
             if (cursor != null && cursor.moveToFirst()) {
                 do {
                     User user = new User(
+
                             cursor.getInt(0),  // id
                             cursor.getString(1),  // username
                             cursor.getString(2),  // password
                             cursor.getString(3),  // phone
-                            cursor.getString(4)   // role
+                            cursor.getString(4),  // role
+                            cursor.getBlob(5)
+
+
                     );
                     users.add(user);
                     Log.d(TAG, "User added: " + user.toString());
