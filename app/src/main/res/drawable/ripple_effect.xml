@@ -1,19 +1,19 @@
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/button_pressed_color"> <!-- Màu khi nhấn -->
+    android:color="@color/button_pressed_color"> <!-- Màu ripple khi nhấn -->
 
-    <!-- Màu của hiệu ứng ripple -->
+    <!-- Nền nút khi chưa nhấn -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/button_bg_color" /> <!-- Nền của ripple -->
-            <corners android:radius="12dp" />
+            <solid android:color="#AAA2B4" /> <!-- Màu nền bạn mong muốn -->
+            <corners android:radius="12dp" /> <!-- Bo góc, nếu cần -->
         </shape>
     </item>
 
-    <!-- Mask để xác định vùng ripple, dùng màu khác hoặc loại bỏ nếu không cần thiết -->
+    <!-- Mask cho vùng ripple -->
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
-            <solid android:color="@android:color/white" /> <!-- Màu của mask -->
-            <corners android:radius="12dp" />
+            <solid android:color="@android:color/white" /> <!-- Màu mask -->
+            <corners android:radius="12dp" /> <!-- Bo góc cho mask -->
         </shape>
     </item>
 </ripple>

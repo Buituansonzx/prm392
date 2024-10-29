@@ -19,7 +19,7 @@ public class UserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_user);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Thiết lập item đã chọn là Home
+        // Thiết lập item đã chọn là User
         bottomNavigationView.setSelectedItemId(R.id.nav_user);
 
         // Xử lý sự kiện chọn item
