@@ -9,23 +9,24 @@
     tools:context=".AlbumManagement">
 
     <!-- Nút quay về trang chủ -->
+
+    <!-- Tiêu đề màn hình Quản lý album -->
+
+    <!-- Nút thêm album -->
     <ImageView
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="Go back"
         android:onClick="backToHome"
         android:paddingLeft="20dp"
         android:paddingTop="20dp"
         android:paddingRight="20dp"
         android:paddingBottom="5dp"
         android:src="@drawable/arrow_icon"
-        android:contentDescription="Go back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Tiêu đề màn hình Quản lý album -->
-
-    <!-- Nút thêm album -->
     <TextView
         android:id="@+id/screenTitle"
         android:layout_width="wrap_content"
