@@ -7,12 +7,19 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.example.musicapp.model.Song;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DBHelper";
     private static final String DATABASE_NAME = "MelodyBox.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Tăng version để trigger onUpgrade
     private static final String TABLE_USERS = "users";
+    private static final String TABLE_ALBUMS = "albums";
+    private static final String TABLE_SONGS = "songs";
 
     // Columns
     public static final String COLUMN_ID = "id";
@@ -22,21 +29,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ROLE = "role";
     public static final String COLUMN_IMAGE = "image";
 
-    // Thêm constants cho bảng Albums
-    private static final String TABLE_ALBUMS = "albums";
     public static final String COLUMN_ALBUM_ID = "album_id";
     public static final String COLUMN_ALBUM_TITLE = "title";
     public static final String COLUMN_ALBUM_IMAGE = "image";
     public static final String COLUMN_RELEASE_DATE = "release_date";
     public static final String COLUMN_USER_ID = "user_id";
 
-    // Thêm constants cho bảng Songs
-    private static final String TABLE_SONGS = "songs";
     public static final String COLUMN_SONG_ID = "song_id";
     public static final String COLUMN_SONG_TITLE = "title";
     public static final String COLUMN_ARTIST = "artist";
     public static final String COLUMN_DURATION = "duration";
-    public static final String COLUMN_FILE_PATH = "file_path";
+    public static final String COLUMN_SONG_URL = "song_url";
     public static final String COLUMN_SONG_IMAGE = "image";
 
     public DBHelper(Context context) {
@@ -51,7 +54,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COLUMN_PASSWORD + " TEXT NOT NULL, "
                 + COLUMN_PHONE + " TEXT UNIQUE NOT NULL, "
                 + COLUMN_ROLE + " TEXT NOT NULL, "
-                + COLUMN_IMAGE + " BLOB)"; // Thay đổi kiểu dữ liệu thành BLOB và bỏ NOT NULL
+                + COLUMN_IMAGE + " BLOB)";
+
         String createAlbumsTable = "CREATE TABLE " + TABLE_ALBUMS + "("
                 + COLUMN_ALBUM_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_ALBUM_TITLE + " TEXT NOT NULL, "
@@ -61,17 +65,17 @@ public class DBHelper extends SQLiteOpenHelper {
                 + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES "
                 + TABLE_USERS + "(" + COLUMN_ID + "))";
 
-        // Tạo bảng Songs với khóa ngoại tới Albums
         String createSongsTable = "CREATE TABLE " + TABLE_SONGS + "("
                 + COLUMN_SONG_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_SONG_TITLE + " TEXT NOT NULL, "
                 + COLUMN_ARTIST + " TEXT NOT NULL, "
                 + COLUMN_ALBUM_ID + " INTEGER, "
                 + COLUMN_DURATION + " INTEGER, "
-                + COLUMN_FILE_PATH + " TEXT, "
+                + COLUMN_SONG_URL + " TEXT, "
                 + COLUMN_SONG_IMAGE + " BLOB, "
                 + "FOREIGN KEY(" + COLUMN_ALBUM_ID + ") REFERENCES "
                 + TABLE_ALBUMS + "(" + COLUMN_ALBUM_ID + "))";
+
         db.execSQL(createUsersTable);
         db.execSQL(createAlbumsTable);
         db.execSQL(createSongsTable);
@@ -80,6 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Xóa các bảng cũ và tạo lại
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SONGS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUMS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
@@ -98,14 +103,15 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d(TAG, "Add album result: " + result);
         return result != -1;
     }
-    public boolean addSong(String title, String artist, int albumId, int duration, String filePath, byte[] image) {
+
+    public boolean addSong(String title, String artist, int albumId, int duration, String songUrl, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_SONG_TITLE, title);
         contentValues.put(COLUMN_ARTIST, artist);
         contentValues.put(COLUMN_ALBUM_ID, albumId);
         contentValues.put(COLUMN_DURATION, duration);
-        contentValues.put(COLUMN_FILE_PATH, filePath);
+        contentValues.put(COLUMN_SONG_URL, songUrl);
         contentValues.put(COLUMN_SONG_IMAGE, image);
 
         long result = db.insert(TABLE_SONGS, null, contentValues);
@@ -113,6 +119,54 @@ public class DBHelper extends SQLiteOpenHelper {
         return result != -1;
     }
 
+    public List<Song> getAllSongs() {
+        List<Song> songs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_SONGS, null, null, null, null, null, null);
+
+        Log.d(TAG, "getAllSongs: Total rows = " + cursor.getCount());
+
+        if (cursor.moveToFirst()) {
+            do {
+                Song song = new Song(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5),
+                        cursor.getBlob(6)
+                );
+                songs.add(song);
+                Log.d(TAG, "getAllSongs: Added song - " + song.getTitle());
+            } while (cursor.moveToNext());
+        } else {
+            Log.d(TAG, "getAllSongs: No songs found in database");
+        }
+        cursor.close();
+        Log.d(TAG, "getAllSongs: Total songs retrieved = " + songs.size());
+        return songs;
+    }
+
+    public Song getSongById(int songId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_SONGS, null, COLUMN_SONG_ID + "=?",
+                new String[]{String.valueOf(songId)}, null, null, null);
+        Song song = null;
+        if (cursor.moveToFirst()) {
+            song = new Song(
+                    cursor.getInt(0),  // COLUMN_SONG_ID
+                    cursor.getString(1),  // COLUMN_SONG_TITLE
+                    cursor.getString(2),  // COLUMN_ARTIST
+                    cursor.getInt(3),  // COLUMN_ALBUM_ID
+                    cursor.getInt(4),  // COLUMN_DURATION
+                    cursor.getString(5),  // COLUMN_SONG_URL
+                    cursor.getBlob(6)  // COLUMN_SONG_IMAGE
+            );
+        }
+        cursor.close();
+        return song;
+    }
     public boolean addUser(String username, String password, String phone, String role, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
