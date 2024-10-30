@@ -1,5 +1,7 @@
 package com.example.musicapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,34 +11,57 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.musicapp.model.Song;
+
 import java.util.List;
 
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder> {
-    private List<SongItem> songItems;
+    private List<Song> songs;
+    private OnSongClickListener listener;
 
-    public SongAdapter(List<SongItem> songItems) {
-        this.songItems = songItems;
+    public interface OnSongClickListener {
+        void onSongClick(Song song);
     }
-
+    public SongAdapter(List<Song> songs,OnSongClickListener listener) {
+        this.songs = songs;
+        this.listener = listener;
+    }
 
     @NonNull
     @Override
-    public SongAdapter.SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public SongViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_song_in_album, parent, false);
-        return new SongAdapter.SongViewHolder(itemView);
+        return new SongViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SongAdapter.SongViewHolder holder, int position) {
-        SongAdapter.SongItem currentItem = songItems.get(position);
-        holder.songNameTextView.setText(currentItem.getSongName());
-        holder.artistNameTextView.setText(currentItem.getArtistName());
+    public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
+        Song currentSong = songs.get(position);
+        holder.songNameTextView.setText(currentSong.getTitle());
+        holder.artistNameTextView.setText(currentSong.getArtist());
 
+        if (currentSong.getImage() != null) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(currentSong.getImage(), 0, currentSong.getImage().length);
+            holder.songImageView.setImageBitmap(bitmap);
+        } else {
+            // Set a default image if no image is available
+            holder.songImageView.setImageResource(R.drawable.default_song_image);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onSongClick(currentSong);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return songItems.size();
+        return songs.size();
+    }
+    public void updateList(List<Song> newList) {
+        this.songs = newList;
+        notifyDataSetChanged();
     }
     public static class SongViewHolder extends RecyclerView.ViewHolder {
         public ImageView songImageView;
@@ -48,29 +73,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.SongViewHolder
             songImageView = itemView.findViewById(R.id.playlist_image);
             songNameTextView = itemView.findViewById(R.id.song_name);
             artistNameTextView = itemView.findViewById(R.id.artist_name);
-        }
-    }
-    public static class SongItem {
-        private String songName;
-        private String artistName;
-        private int imageResource;
-
-        public SongItem(String songName, String artistName, int imageResource) {
-            this.songName = songName;
-            this.artistName = artistName;
-            this.imageResource = imageResource;
-        }
-
-        public String getSongName() {
-            return songName;
-        }
-
-        public String getArtistName() {
-            return artistName;
-        }
-
-        public int getImageResource() {
-            return imageResource;
         }
     }
 }
