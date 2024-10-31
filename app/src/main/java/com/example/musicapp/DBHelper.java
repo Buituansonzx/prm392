@@ -22,6 +22,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String TABLE_USERS = "users";
     private static final String TABLE_SONGS = "songs";
     private static final String TABLE_ALBUMS = "albums";
+    private static final String TABLE_LISTENING_HISTORY = "user_listening_history";
+
 
     // Columns for Users
     public static final String COLUMN_ID = "id";
@@ -45,6 +47,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ALBUM_IMAGE = "image";
     public static final String COLUMN_RELEASE_DATE = "release_date";
     public static final String COLUMN_USER_ID = "user_id";
+
+    // Thêm constant cho bảng UserListeningHistory
+    public static final String COLUMN_HISTORY_ID = "history_id";
+    public static final String COLUMN_TIMESTAMP = "timestamp";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -82,17 +88,27 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COLUMN_SONG_IMAGE + " BLOB, "
                 + "FOREIGN KEY(" + COLUMN_ALBUM_ID + ") REFERENCES "
                 + TABLE_ALBUMS + "(" + COLUMN_ALBUM_ID + "))";
+        String createHistoryTable = "CREATE TABLE " + TABLE_LISTENING_HISTORY + "("
+                + COLUMN_HISTORY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_USER_ID + " INTEGER NOT NULL, "
+                + COLUMN_SONG_ID + " INTEGER NOT NULL, "
+                + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
+                + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "), "
+                + "FOREIGN KEY(" + COLUMN_SONG_ID + ") REFERENCES " + TABLE_SONGS + "(" + COLUMN_SONG_ID + "))";
+
 
         // Thực thi theo đúng thứ tự
         db.execSQL(createUsersTable);
         db.execSQL(createAlbumsTable);
         db.execSQL(createSongsTable);
+        db.execSQL(createHistoryTable);
         Log.d(TAG, "Database tables created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Xóa theo thứ tự ngược lại
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_LISTENING_HISTORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SONGS);    // Xóa Songs trước
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUMS);   // Xóa Albums sau
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);    // Xóa Users cuối cùng
@@ -328,7 +344,52 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(song.getId())});
         return rowsAffected > 0;
     }
+    public List<Song> getSongsByAlbumId(int albumId) {
+        List<Song> songs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_SONGS, null,
+                COLUMN_ALBUM_ID + "=?", new String[]{String.valueOf(albumId)},
+                null, null, null);
 
+        if (cursor.moveToFirst()) {
+            do {
+                Song song = new Song(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5),
+                        cursor.getBlob(6)
+                );
+                songs.add(song);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return songs;
+    }
+    public List<Album> getAlbumsByUserId(int userId) {
+        List<Album> albums = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_ALBUMS, null,
+                COLUMN_USER_ID + "=?", new String[]{String.valueOf(userId)},
+                null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                Album album = new Album(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getBlob(2),
+                        cursor.getString(3),
+                        cursor.getInt(4)
+                );
+                albums.add(album);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return albums;
+    }
     public boolean deleteSong(int songId) {
         SQLiteDatabase db = this.getWritableDatabase();
         int rowsAffected = db.delete(TABLE_SONGS, COLUMN_SONG_ID + " = ?", new String[]{String.valueOf(songId)});
@@ -415,4 +476,83 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(albumId)});
         return rowsAffected > 0;
     }
+    public boolean addListeningHistory(int userId, int songId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID, userId);
+        values.put(COLUMN_SONG_ID, songId);
+        // Timestamp sẽ tự động được thêm vào nhờ DEFAULT CURRENT_TIMESTAMP
+
+        long result = db.insert(TABLE_LISTENING_HISTORY, null, values);
+        return result != -1;
+    }
+    public static class ListeningHistoryItem {
+        private int historyId;
+        private int userId;
+        private int songId;
+        private String songTitle;
+        private String artist;
+        private String timestamp;
+
+        public ListeningHistoryItem(int historyId, int userId, int songId,
+                                    String songTitle, String artist, String timestamp) {
+            this.historyId = historyId;
+            this.userId = userId;
+            this.songId = songId;
+            this.songTitle = songTitle;
+            this.artist = artist;
+            this.timestamp = timestamp;
+        }
+
+        // Getters
+        public int getHistoryId() { return historyId; }
+        public int getUserId() { return userId; }
+        public int getSongId() { return songId; }
+        public String getSongTitle() { return songTitle; }
+        public String getArtist() { return artist; }
+        public String getTimestamp() { return timestamp; }
+    }
+    public List<ListeningHistoryItem> getUserListeningHistory(int userId) {
+        List<ListeningHistoryItem> history = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT h." + COLUMN_HISTORY_ID + ", h." + COLUMN_USER_ID +
+                ", h." + COLUMN_SONG_ID + ", s." + COLUMN_SONG_TITLE +
+                ", s." + COLUMN_ARTIST + ", h." + COLUMN_TIMESTAMP +
+                " FROM " + TABLE_LISTENING_HISTORY + " h" +
+                " JOIN " + TABLE_SONGS + " s ON h." + COLUMN_SONG_ID +
+                " = s." + COLUMN_SONG_ID +
+                " WHERE h." + COLUMN_USER_ID + " = ?" +
+                " ORDER BY h." + COLUMN_TIMESTAMP + " DESC";
+
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)})) {
+            if (cursor.moveToFirst()) {
+                do {
+                    ListeningHistoryItem item = new ListeningHistoryItem(
+                            cursor.getInt(0),    // history_id
+                            cursor.getInt(1),    // user_id
+                            cursor.getInt(2),    // song_id
+                            cursor.getString(3),  // song_title
+                            cursor.getString(4),  // artist
+                            cursor.getString(5)   // timestamp
+                    );
+                    history.add(item);
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user listening history: " + e.getMessage());
+        }
+
+        return history;
+    }
+
+    // Xóa lịch sử nghe nhạc của một user
+    public boolean clearUserListeningHistory(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_LISTENING_HISTORY,
+                COLUMN_USER_ID + " = ?",
+                new String[]{String.valueOf(userId)});
+        return rowsDeleted > 0;
+    }
+
 }
