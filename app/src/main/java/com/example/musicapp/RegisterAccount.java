@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicapp.model.User;
+
 public class RegisterAccount extends AppCompatActivity {
 
     private EditText etUsername, etPassword, etConfirmPassword, etPhoneNumber;

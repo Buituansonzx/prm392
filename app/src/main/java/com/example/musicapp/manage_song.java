@@ -1,12 +1,16 @@
 package com.example.musicapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class manage_song extends AppCompatActivity {
+    private static final int ADD_SONG_REQUEST_CODE = 1;
+
     private RecyclerView songRecyclerView;
     private SearchView searchView;
     private FloatingActionButton addSongFab;
@@ -58,11 +64,57 @@ public class manage_song extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        songAdapter = new SongAdapter(songList, song -> {
-            Toast.makeText(this, "Đã chọn bài hát: " + song.getTitle(), Toast.LENGTH_SHORT).show();
+        songAdapter = new SongAdapter(songList, new SongAdapter.OnSongClickListener() {
+            @Override
+            public void onSongClick(Song song) {
+                Intent intent = new Intent(manage_song.this, Play_song.class);
+                intent.putExtra("song", song);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onSongOptionsClick(Song song, View view) {
+                showPopupMenu(song, view);
+            }
         });
         songRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         songRecyclerView.setAdapter(songAdapter);
+    }
+
+    private void showPopupMenu(Song song, View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.inflate(R.menu.song_item_menu);
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int itemId = item.getItemId();
+                if (itemId == R.id.action_edit) {
+                    // Xử lý khi chọn edit
+                    editSong(song);
+                    return true;
+                } else if (itemId == R.id.action_delete) {
+                    // Xử lý khi chọn delete
+                    deleteSong(song);
+                    return true;
+                }
+                return false;
+            }
+        });
+        popup.show();
+    }
+
+    private void editSong(Song song) {
+        // Implement logic to edit song
+        Toast.makeText(this, "Edit song: " + song.getTitle(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void deleteSong(Song song) {
+        DBHelper db = new DBHelper(this);
+        db.deleteSong(song.getId());
+        songList.remove(song);
+        songAdapter.notifyDataSetChanged();
+        updateEmptyState();
+        Toast.makeText(this, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
     }
 
     private void loadSongs() {
@@ -100,7 +152,8 @@ public class manage_song extends AppCompatActivity {
         });
 
         addSongFab.setOnClickListener(v -> {
-            Toast.makeText(this, "Chức năng thêm bài hát đang được phát triển", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(manage_song.this, AddSongActivity.class);
+            startActivityForResult(intent, ADD_SONG_REQUEST_CODE);
         });
     }
 
@@ -113,6 +166,15 @@ public class manage_song extends AppCompatActivity {
         }
         songAdapter.updateList(filteredList);
         updateEmptyState();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ADD_SONG_REQUEST_CODE && resultCode == RESULT_OK) {
+            loadSongs(); // Tải lại danh sách bài hát sau khi thêm thành công
+            Toast.makeText(this, "Thêm bài hát thành công", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

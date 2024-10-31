@@ -1,4 +1,4 @@
-package com.example.musicapp;
+package com.example.musicapp.model;
 
 public class User {
     private int id;
