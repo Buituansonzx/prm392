@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +25,9 @@ import androidx.core.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AddSongActivity extends AppCompatActivity {
 
@@ -37,6 +41,7 @@ public class AddSongActivity extends AppCompatActivity {
     private EditText songUrlEditText;
     private Button saveSongButton;
     private DBHelper dbHelper;
+    private Uri selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,11 +118,13 @@ public class AddSongActivity extends AppCompatActivity {
                 songImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "Không thể đọc ảnh, vui lòng thử lại", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void saveSong() {
+        // Validate input
         String title = titleEditText.getText().toString().trim();
         String artist = artistEditText.getText().toString().trim();
         String songUrl = songUrlEditText.getText().toString().trim();
@@ -128,40 +135,76 @@ public class AddSongActivity extends AppCompatActivity {
         }
 
         byte[] imageBytes = getImageBytes();
+        if (imageBytes == null) {
+            Toast.makeText(this, "Vui lòng chọn ảnh cho bài hát", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         int albumId = 1; // Giả sử albumId là 1
         int duration = 0; // Giả sử duration là 0
 
+        // Hiển thị dialog progress
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Đang lưu bài hát...");
+        progressDialog.setCancelable(false);
         progressDialog.show();
 
-        new Thread(() -> {
-            boolean isSuccess = dbHelper.addSong(title, artist, albumId, duration, songUrl, imageBytes);
-            runOnUiThread(() -> {
-                progressDialog.dismiss();
-                if (isSuccess) {
-                    Toast.makeText(AddSongActivity.this, "Đã lưu bài hát thành công", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(AddSongActivity.this, "Lỗi khi lưu bài hát", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }).start();
+        // Thực hiện lưu trong background
+        executorService.execute(() -> {
+            try {
+                boolean isSuccess = dbHelper.addSong(title, artist, albumId, duration, songUrl, imageBytes);
+
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    if (isSuccess) {
+                        Toast.makeText(AddSongActivity.this, "Đã lưu bài hát thành công", Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        Toast.makeText(AddSongActivity.this, "Lỗi khi lưu bài hát", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    progressDialog.dismiss();
+                    Toast.makeText(AddSongActivity.this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
     }
 
+    // Helper method để lấy bytes từ image
     private byte[] getImageBytes() {
-        if (songImageView.getDrawable() != null) {
-            Bitmap bitmap = ((BitmapDrawable) songImageView.getDrawable()).getBitmap();
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            return stream.toByteArray();
+        if (selectedImageUri == null) return null;
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
+        } catch (IOException e) {
+            Log.e("Error image", "Error converting image to bytes: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+// Trong phương thức saveSong()
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 }

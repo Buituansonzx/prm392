@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.musicapp.model.User;
+
 public class login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";

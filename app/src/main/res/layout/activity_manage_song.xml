@@ -20,9 +20,9 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:navigationIcon="@drawable/arrow_icon"
             app:title="Quản lý bài hát"
-            app:titleTextColor="@color/white"/>
+            app:titleTextColor="@color/white"
+            app:layout_scrollFlags="scroll|enterAlways"/>
 
-        <!-- Thêm SearchView -->
         <androidx.appcompat.widget.SearchView
             android:id="@+id/searchView"
             android:layout_width="match_parent"
@@ -30,27 +30,31 @@
             android:background="@color/white"
             android:layout_margin="8dp"
             app:queryHint="Tìm kiếm bài hát..."
-            app:iconifiedByDefault="false"/>
+            app:iconifiedByDefault="false"
+            app:layout_scrollFlags ="scroll|enterAlways" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="16dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/songRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:clipToPadding="false"
                 android:paddingBottom="80dp"
-                android:contentDescription="Danh sách bài hát" />
+                android:contentDescription="Danh sách bài hát"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             <TextView
                 android:id="@+id/emptyStateView"
@@ -73,7 +77,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Thêm Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addSongFab"
         android:layout_width="wrap_content"
@@ -81,7 +84,9 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:src="@drawable/ic_add"
+        android:contentDescription="Thêm bài hát mới"
         app:backgroundTint="@color/design_default_color_primary"
-        app:tint="@color/white"/>
+        app:tint="@color/white"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
