@@ -23,15 +23,25 @@
             android:exported="true" />
 
         <activity
-            android:name=".AddSongActivity"
+            android:name=".controler.AddSongActivity"
             android:exported="false" />
 
         <activity
-            android:name=".RegisterAccount"
+            android:name=".controler.RegisterAccount"
             android:exported="true" />
 
         <activity
-            android:name=".HomeAdminActivity"
+            android:name=".controler.HomeAdminActivity"
+            android:exported="true">
+
+        </activity>
+
+        <activity
+            android:name=".controler.ManagerUserActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".controler.login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,15 +50,7 @@
         </activity>
 
         <activity
-            android:name=".ManagerUserActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".login"
-            android:exported="true" />
-
-        <activity
-            android:name=".manage_song"
+            android:name=".controler.manage_song"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
@@ -70,12 +72,14 @@
             android:exported="true" />
 
         <activity
-            android:name=".Detail_Album"
+            android:name=".controler.Detail_Album"
             android:exported="true" />
 
         <activity
-            android:name=".Home"
-            android:exported="true" />
+            android:name=".controler.Home"
+            android:exported="true">
+
+        </activity>
 
         <activity
             android:name=".MainActivity"

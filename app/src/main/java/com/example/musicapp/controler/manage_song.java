@@ -1,4 +1,4 @@
-package com.example.musicapp;
+package com.example.musicapp.controler;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +16,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.musicapp.DBHelper;
+import com.example.musicapp.Play_song;
+import com.example.musicapp.R;
+import com.example.musicapp.SongAdapter;
 import com.example.musicapp.model.Song;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 

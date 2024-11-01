@@ -1,4 +1,4 @@
-package com.example.musicapp;
+package com.example.musicapp.controler;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.musicapp.Play_song;
+import com.example.musicapp.R;
+import com.example.musicapp.SongAdapter;
 import com.example.musicapp.model.Song;
 
 import java.io.ByteArrayOutputStream;
