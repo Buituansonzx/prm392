@@ -588,14 +588,47 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    //Forgot password, kiểm tra xem người dùng có tồn tai không
-    public boolean isPhoneExists(String phoneNumber) {
+    //Lấy thông tin ng dùng qua sđt
+    public User getUserByPhoneNumber(String phoneNumber) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID}, COLUMN_PHONE + "=?", new String[]{phoneNumber}, null, null, null);
-        boolean exists = cursor.getCount() > 0;
-        cursor.close();
-        return exists;
+        User user = null;
+
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE, COLUMN_IMAGE};
+        String selection = COLUMN_PHONE + " = ?";
+        String[] selectionArgs = {phoneNumber};
+
+        try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                byte[] imageBytes = cursor.getBlob(5);
+                user = new User(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        imageBytes
+                );
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user by phone number: " + e.getMessage());
+        }
+
+        return user;
     }
+
+    //Cập nhật mật khẩu trong forgot password
+    public boolean updateUserPassword(String phoneNumber, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PASSWORD, newPassword); // Giả sử COLUMN_PASSWORD là tên cột cho mật khẩu
+
+        String selection = COLUMN_PHONE + " = ?";
+        String[] selectionArgs = { phoneNumber };
+
+        int count = db.update(TABLE_USERS, values, selection, selectionArgs);
+        return count > 0; // Trả về true nếu cập nhật thành công
+    }
+
 
 
 }

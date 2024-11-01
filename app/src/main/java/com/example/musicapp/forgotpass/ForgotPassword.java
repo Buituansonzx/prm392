@@ -3,6 +3,7 @@ package com.example.musicapp.forgotpass;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -47,6 +48,10 @@ public class ForgotPassword extends AppCompatActivity {
     }
 
     private void sendVerificationCode(String phoneNumber) {
+        // Kiểm tra độ dài của số điện thoại và tự động thêm mã quốc gia nếu cần
+        if (phoneNumber.length() == 10 && !phoneNumber.startsWith("+84")) {
+            phoneNumber = "+84" + phoneNumber.substring(1); // Thay số 0 đầu tiên bằng +84
+        }
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(firebaseAuth)
                         .setPhoneNumber(phoneNumber)
@@ -67,18 +72,15 @@ public class ForgotPassword extends AppCompatActivity {
                             public void onCodeSent(@NonNull String verificationId,
                                                    @NonNull PhoneAuthProvider.ForceResendingToken token) {
                                 ForgotPassword.this.verificationId = verificationId;
+                                String phoneNumber = phoneNumberEditText.getText().toString().trim(); // Lấy số điện thoại
+
                                 Intent intent = new Intent(ForgotPassword.this, EnterOtpActivity.class);
                                 intent.putExtra("verificationId", verificationId);
+                                intent.putExtra("userPhoneNumber", phoneNumber); // Thêm số điện thoại vào Intent
                                 startActivity(intent);
                             }
                         })
                         .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
     }
-
-
-
-
-
-
 }

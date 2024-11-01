@@ -3,6 +3,7 @@ package com.example.musicapp.forgotpass;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -15,11 +16,9 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 public class EnterOtpActivity extends AppCompatActivity {
-
     private EditText otpEditText;
     private Button verifyOtpButton;
     private String verificationId;
-    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,38 +27,39 @@ public class EnterOtpActivity extends AppCompatActivity {
 
         otpEditText = findViewById(R.id.otpEditText);
         verifyOtpButton = findViewById(R.id.verifyOtpButton);
-        firebaseAuth = FirebaseAuth.getInstance();
-
         verificationId = getIntent().getStringExtra("verificationId");
 
         verifyOtpButton.setOnClickListener(view -> {
             String otp = otpEditText.getText().toString().trim();
             if (TextUtils.isEmpty(otp)) {
-                Toast.makeText(EnterOtpActivity.this, "Vui lòng nhập mã OTP", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EnterOtpActivity.this, "Vui lòng nhập OTP", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            verifyCode(otp);
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, otp);
+            signInWithPhoneAuthCredential(credential);
         });
     }
 
-    private void verifyCode(String code) {
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-        signInWithCredential(credential);
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Xác minh OTP thành công
+                        onVerificationSuccess();
+                    } else {
+                        // Xác minh OTP thất bại
+                        String message = task.getException() != null ? task.getException().getMessage() : "Xác minh thất bại";
+                        Toast.makeText(EnterOtpActivity.this, message, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-
-    private void signInWithCredential(PhoneAuthCredential credential) {
-        firebaseAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Toast.makeText(EnterOtpActivity.this, "Xác minh thành công", Toast.LENGTH_SHORT).show();
-                // Chuyển đến màn hình thay đổi mật khẩu
-                Intent intent = new Intent(EnterOtpActivity.this, ResetPasswordActivity.class);
-                startActivity(intent);
-                finish();
-            } else {
-                Toast.makeText(EnterOtpActivity.this, "Xác minh thất bại", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void onVerificationSuccess() {
+        Intent intent = new Intent(EnterOtpActivity.this, ResetPasswordActivity.class);
+        String phoneNumber = getIntent().getStringExtra("userPhoneNumber"); // Lấy số điện thoại từ Intent
+        intent.putExtra("USER_PHONE_NUMBER", phoneNumber); // Truyền số điện thoại vào Intent
+        startActivity(intent);
+        finish(); // Đóng màn hình hiện tại
     }
 }
