@@ -12,59 +12,53 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicApp"
         tools:targetApi="31" >
-
+        <activity
+            android:name=".forgotpass.ResetPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".forgotpass.EnterOtpActivity"
+            android:exported="false" />
         <activity
             android:name=".RegisterAccount"
+            android:exported="true" />
+        <activity
+            android:name=".HomeAdminActivity"
+            android:exported="true" />
+        <activity
+            android:name=".forgotpass.ForgotPassword"
             android:exported="true" >
 
         </activity>
-
         <activity
-            android:name=".HomeAdminActivity"
-            android:exported="true">
-
-        </activity>
-
-        <activity android:name=".ManagerUserActivity"
-            android:exported="true">
+            android:name=".ManagerUserActivity"
+            android:exported="true" />
+        <activity
+            android:name=".login"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".login"
-            android:exported="true">
-
-        </activity>
-
         <activity
             android:name=".UserActivity"
             android:exported="true" />
-
         <activity
             android:name=".SettingActivity"
             android:exported="true" />
-
         <activity
             android:name=".SearchActivity"
             android:exported="true" />
-
         <activity
             android:name=".Detail_Album"
             android:exported="true" />
-
         <activity
             android:name=".Home"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-
     </application>
 
 </manifest>
