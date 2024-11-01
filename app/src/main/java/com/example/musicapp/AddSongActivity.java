@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class AddSongActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
+    private static final int PERMISSION_REQUEST_STORAGE = 5;
 
     private ImageView songImageView;
     private Button selectImageButton;
@@ -73,22 +75,24 @@ public class AddSongActivity extends AppCompatActivity {
         }
     }
 
-    private void setupListeners() {
-        selectImageButton.setOnClickListener(v -> checkPermissionAndOpenImageChooser());
-        saveSongButton.setOnClickListener(v -> saveSong());
-    }
+
 
     private void checkPermissionAndOpenImageChooser() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSION_REQUEST_CODE);
+                    PERMISSION_REQUEST_STORAGE);
         } else {
             openImageChooser();
         }
     }
-
+    private byte[] getDefaultImageBytes() {
+        Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_song_image);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        defaultBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
     private void openImageChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -99,11 +103,11 @@ public class AddSongActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST_CODE) {
+        if (requestCode == PERMISSION_REQUEST_STORAGE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openImageChooser();
             } else {
-                Toast.makeText(this, "Quyền bị từ chối, không thể chọn ảnh", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Quyền truy cập bộ sưu tập bị từ chối", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -112,9 +116,9 @@ public class AddSongActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            Uri imageUri = data.getData();
+            selectedImageUri = data.getData();  // Lưu URI của ảnh đã chọn
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
                 songImageView.setImageBitmap(bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -122,12 +126,16 @@ public class AddSongActivity extends AppCompatActivity {
             }
         }
     }
-
+    private void setupListeners() {
+        selectImageButton.setOnClickListener(v -> checkPermissionAndOpenImageChooser());
+        saveSongButton.setOnClickListener(v -> saveSong());
+    }
     private void saveSong() {
         // Validate input
         String title = titleEditText.getText().toString().trim();
         String artist = artistEditText.getText().toString().trim();
         String songUrl = songUrlEditText.getText().toString().trim();
+
 
         if (title.isEmpty() || artist.isEmpty() || songUrl.isEmpty()) {
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
@@ -136,8 +144,8 @@ public class AddSongActivity extends AppCompatActivity {
 
         byte[] imageBytes = getImageBytes();
         if (imageBytes == null) {
-            Toast.makeText(this, "Vui lòng chọn ảnh cho bài hát", Toast.LENGTH_SHORT).show();
-            return;
+            // Sử dụng ảnh mặc định
+            imageBytes = getDefaultImageBytes();
         }
 
         int albumId = 1; // Giả sử albumId là 1
@@ -150,9 +158,10 @@ public class AddSongActivity extends AppCompatActivity {
         progressDialog.show();
 
         // Thực hiện lưu trong background
+        byte[] finalImageBytes = imageBytes;
         executorService.execute(() -> {
             try {
-                boolean isSuccess = dbHelper.addSong(title, artist, albumId, duration, songUrl, imageBytes);
+                boolean isSuccess = dbHelper.addSong(title, artist, albumId, duration, songUrl, finalImageBytes);
 
                 runOnUiThread(() -> {
                     progressDialog.dismiss();
