@@ -243,7 +243,39 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(user.getId())});
         return rowsAffected > 0;
     }
+    public List<Song> getRecentSongs(int limit) {
+        List<Song> songs = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_SONGS + " ORDER BY " + COLUMN_SONG_ID + " DESC LIMIT ?";
 
+        try (SQLiteDatabase db = this.getReadableDatabase();
+             Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(limit)})) {
+
+            Log.d(TAG, "getRecentSongs: Total rows = " + cursor.getCount());
+
+            if (cursor.moveToFirst()) {
+                do {
+                    Song song = new Song(
+                            cursor.getInt(0),
+                            cursor.getString(1),
+                            cursor.getString(2),
+                            cursor.getInt(3),
+                            cursor.getInt(4),
+                            cursor.getString(5),
+                            cursor.getBlob(6)
+                    );
+                    songs.add(song);
+                    Log.d(TAG, "getRecentSongs: Added song - " + song.getTitle());
+                } while (cursor.moveToNext());
+            } else {
+                Log.d(TAG, "getRecentSongs: No songs found in database");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in getRecentSongs: " + e.getMessage());
+        }
+
+        Log.d(TAG, "getRecentSongs: Total songs retrieved = " + songs.size());
+        return songs;
+    }
     // Song methods
     public boolean addSong(String title, String artist, int albumId, int duration, String songUrl, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();

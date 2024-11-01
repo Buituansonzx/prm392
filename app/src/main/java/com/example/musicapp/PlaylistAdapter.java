@@ -1,20 +1,25 @@
 package com.example.musicapp;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.musicapp.R;
+
+import com.example.musicapp.model.Song;
+
 import java.util.List;
 
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> {
 
     private List<PlaylistItem> playlistItems;
 
-    // Constructor
     public PlaylistAdapter(List<PlaylistItem> playlistItems) {
         this.playlistItems = playlistItems;
     }
@@ -22,18 +27,15 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     @NonNull
     @Override
     public PlaylistViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playlist, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_playlist, parent, false);
         return new PlaylistViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
         PlaylistItem currentItem = playlistItems.get(position);
-        holder.songNameTextView.setText(currentItem.getSongName());
-        holder.artistNameTextView.setText(currentItem.getArtistName());
-
-        // Đặt hình ảnh cho ImageView. Bạn có thể sử dụng thư viện Glide hoặc Picasso để tải ảnh từ URL.
-        holder.songImageView.setImageResource(currentItem.getImageResource());
+        holder.bind(currentItem);
     }
 
     @Override
@@ -42,40 +44,76 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
     }
 
     public static class PlaylistViewHolder extends RecyclerView.ViewHolder {
-        public ImageView songImageView;
-        public TextView songNameTextView;
-        public TextView artistNameTextView;
+        private final ImageView playlistImage;
+        private final TextView songNameText;
+        private final TextView artistNameText;
 
         public PlaylistViewHolder(@NonNull View itemView) {
             super(itemView);
-            songImageView = itemView.findViewById(R.id.playlist_image);
-            songNameTextView = itemView.findViewById(R.id.song_name);
-            artistNameTextView = itemView.findViewById(R.id.artist_name);
+            playlistImage = itemView.findViewById(R.id.playlist_image);
+            songNameText = itemView.findViewById(R.id.song_name);
+            artistNameText = itemView.findViewById(R.id.artist_name);
+        }
+
+        public void bind(PlaylistItem item) {
+            Song song = item.getSong();
+
+            // Set text
+            songNameText.setText(song.getTitle());
+            artistNameText.setText(song.getArtist());
+
+            // Set image
+            if (song.getImage() != null && song.getImage().length > 0) {
+                try {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(
+                            song.getImage(),
+                            0,
+                            song.getImage().length
+                    );
+                    playlistImage.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    playlistImage.setImageResource(R.drawable.img);
+                }
+            } else {
+                playlistImage.setImageResource(R.drawable.img);
+            }
+
+            // Set click listener
+            itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), Play_song.class);
+                intent.putExtra("song", song);
+                v.getContext().startActivity(intent);
+            });
         }
     }
 
-    // Playlist item model class
     public static class PlaylistItem {
-        private String songName;
-        private String artistName;
-        private int imageResource;
+        private final Song song;
 
-        public PlaylistItem(String songName, String artistName, int imageResource) {
-            this.songName = songName;
-            this.artistName = artistName;
-            this.imageResource = imageResource;
+        public PlaylistItem(Song song) {
+            this.song = song;
         }
 
-        public String getSongName() {
-            return songName;
+        public Song getSong() {
+            return song;
         }
+    }
 
-        public String getArtistName() {
-            return artistName;
-        }
+    // Helper methods
+    public void updatePlaylist(List<PlaylistItem> newItems) {
+        this.playlistItems = newItems;
+        notifyDataSetChanged();
+    }
 
-        public int getImageResource() {
-            return imageResource;
+    public void addItem(PlaylistItem item) {
+        this.playlistItems.add(item);
+        notifyItemInserted(playlistItems.size() - 1);
+    }
+
+    public void removeItem(int position) {
+        if (position >= 0 && position < playlistItems.size()) {
+            playlistItems.remove(position);
+            notifyItemRemoved(position);
         }
     }
 }
