@@ -555,4 +555,15 @@ public class DBHelper extends SQLiteOpenHelper {
         return rowsDeleted > 0;
     }
 
+
+    //Forgot password, kiểm tra xem người dùng có tồn tai không
+    public boolean isPhoneExists(String phoneNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID}, COLUMN_PHONE + "=?", new String[]{phoneNumber}, null, null, null);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
+
 }

@@ -48,6 +48,7 @@ public class EnterOtpActivity extends AppCompatActivity {
         signInWithCredential(credential);
     }
 
+
     private void signInWithCredential(PhoneAuthCredential credential) {
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
