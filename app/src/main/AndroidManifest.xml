@@ -95,7 +95,9 @@
             android:name=".AlbumManagement"
             android:exported="true" />
 
-
+        <activity
+            android:name=".ListeningHistoryActivity"
+            android:exported="true" />
 
     </application>
 
