@@ -58,7 +58,9 @@
 
         <activity
             android:name=".controler.login"
-            android:exported="true" />
+            android:exported="true" >
+
+        </activity>
 
         <activity
             android:name=".controler.manage_song"
