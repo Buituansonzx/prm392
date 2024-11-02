@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -32,9 +31,7 @@
 
         <activity
             android:name=".controler.HomeAdminActivity"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
 
         <activity
             android:name=".controler.ManagerUserActivity"
@@ -77,12 +74,14 @@
 
         <activity
             android:name=".controler.Home"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
 
         <activity
             android:name=".MainActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".AlbumManagement"
             android:exported="true" />
 
     </application>

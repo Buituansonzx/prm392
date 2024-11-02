@@ -9,59 +9,94 @@
     tools:context=".AlbumManagement">
 
     <!-- Nút quay về trang chủ -->
-
-    <!-- Tiêu đề màn hình Quản lý album -->
-
-    <!-- Nút thêm album -->
-    <ImageView
+    <ImageButton
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="Go back"
-        android:onClick="backToHome"
-        android:paddingLeft="20dp"
-        android:paddingTop="20dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="5dp"
+        android:padding="12dp"
         android:src="@drawable/arrow_icon"
+        android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp" />
 
+    <!-- Tiêu đề màn hình Quản lý album -->
     <TextView
         android:id="@+id/screenTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="84dp"
-        android:layout_marginTop="20dp"
         android:text="Album Management"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toEndOf="@+id/backButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/backButton"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="20dp" />
 
+    <!-- Trường nhập tiêu đề album -->
+    <EditText
+        android:id="@+id/titleEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Nhập tiêu đề album"
+        android:textColorHint="@color/white"
+        android:backgroundTint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/screenTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:padding="12dp" />
+
+    <!-- Hình ảnh album -->
+    <ImageView
+        android:id="@+id/albumImageView"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_album"
+        app:layout_constraintTop_toBottomOf="@id/titleEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Nút chọn hình ảnh album -->
+    <Button
+        android:id="@+id/chooseImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chọn hình ảnh"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/button_bg_color"
+        app:layout_constraintTop_toBottomOf="@id/albumImageView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Nút thêm album -->
     <Button
         android:id="@+id/addAlbumButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Album"
+        android:text="Thêm Album"
         android:textColor="@color/white"
         android:backgroundTint="@color/button_bg_color"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/screenTitle"
-        android:layout_margin="16dp" />
+        app:layout_constraintTop_toBottomOf="@id/chooseImageButton"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
 
-    <!-- Danh sách các album -->
+    <!-- Danh sách album -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerAlbum"
+        android:id="@+id/recyclerViewAlbums"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="30dp"
-        android:padding="25dp"
-        android:clipToPadding="false"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/addAlbumButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:scrollbars="vertical" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
