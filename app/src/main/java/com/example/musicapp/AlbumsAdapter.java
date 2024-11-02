@@ -1,75 +1,100 @@
 package com.example.musicapp;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.musicapp.R;
+import com.example.musicapp.model.Album;
 import java.util.List;
 
-public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumsViewHolder> {
+public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumViewHolder> {
 
-    private List<AlbumsItem> albumItems;
+    private List<Album> albumList;
+    private OnAlbumClickListener listener;
+    private DBHelper dbHelper; // Tham chiếu đến DBHelper
 
-    // Constructor
-    public AlbumsAdapter(List<AlbumsItem> albumItems) {
-        this.albumItems = albumItems;
+    public AlbumsAdapter(List<Album> albumList, OnAlbumClickListener listener, DBHelper dbHelper) {
+        this.albumList = albumList;
+        this.listener = listener;
+        this.dbHelper = dbHelper; // Khởi tạo DBHelper
     }
 
     @NonNull
     @Override
-    public AlbumsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_playlist, parent, false);
-        return new AlbumsViewHolder(itemView1);
+    public AlbumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_album, parent, false);
+        return new AlbumViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AlbumsViewHolder holder, int position) {
-        AlbumsItem currentItem = albumItems.get(position);
-        holder.songNameTextView.setText(currentItem.getAlbumName());
+    public void onBindViewHolder(@NonNull AlbumViewHolder holder, int position) {
+        Album album = albumList.get(position);
+        holder.albumTitle.setText(album.getTitle());
+        holder.albumReleaseDate.setText("Release Date: " + album.getReleaseDate());
 
-        // Đặt hình ảnh cho ImageView. Bạn có thể sử dụng thư viện Glide hoặc Picasso để tải ảnh từ URL.
-        holder.songImageView.setImageResource(currentItem.getImageResource());
+        // Kiểm tra mảng byte hình ảnh không null và không rỗng
+        if (album.getImage() != null && album.getImage().length > 0) {
+            Bitmap bitmap = BitmapFactory.decodeByteArray(album.getImage(), 0, album.getImage().length);
+            holder.albumImage.setImageBitmap(bitmap);
+        } else {
+            // Nếu không có hình ảnh, có thể đặt hình ảnh mặc định
+            holder.albumImage.setImageResource(R.drawable.icon_album); // Đặt hình ảnh mặc định nếu không có
+        }
+
+        // Xử lý sự kiện click cho item
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onAlbumClick(album);
+            }
+        });
+
+        // Xử lý sự kiện click cho nút xóa
+        holder.deleteAlbumButton.setOnClickListener(v -> {
+            int currentPosition = holder.getAdapterPosition(); // Lấy vị trí hiện tại
+            if (currentPosition != RecyclerView.NO_POSITION) {
+                // Xóa album khỏi cơ sở dữ liệu
+                if (dbHelper.deleteAlbum(album.getId())) {
+                    // Nếu xóa thành công, xóa album khỏi danh sách
+                    albumList.remove(currentPosition);
+                    notifyItemRemoved(currentPosition);
+                    notifyItemRangeChanged(currentPosition, albumList.size());
+                } else {
+                    // Có thể xử lý lỗi nếu không xóa thành công
+                }
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return albumItems.size();
+        return albumList.size();
     }
 
-    public static class AlbumsViewHolder extends RecyclerView.ViewHolder {
-        public ImageView songImageView;
-        public TextView songNameTextView;
-        public TextView artistNameTextView;
+    public static class AlbumViewHolder extends RecyclerView.ViewHolder {
 
-        public AlbumsViewHolder(@NonNull View itemView) {
+        TextView albumTitle;
+        TextView albumReleaseDate;
+        ImageView albumImage;
+        Button deleteAlbumButton; // Tham chiếu đến nút xóa
+
+        public AlbumViewHolder(@NonNull View itemView) {
             super(itemView);
-            songImageView = itemView.findViewById(R.id.playlist_image);
-            songNameTextView = itemView.findViewById(R.id.song_name);
-            artistNameTextView = itemView.findViewById(R.id.artist_name);
+            albumTitle = itemView.findViewById(R.id.albumTitle);
+            albumReleaseDate = itemView.findViewById(R.id.albumReleaseDate);
+            albumImage = itemView.findViewById(R.id.imageView);
+            deleteAlbumButton = itemView.findViewById(R.id.deleteAlbumButton); // Khởi tạo tham chiếu
         }
     }
 
-    // Playlist item model class
-    public static class AlbumsItem {
-        private String albumName;
-        private int imageResource;
-
-        public AlbumsItem(String albumName, int imageResource) {
-            this.albumName = albumName;
-            this.imageResource = imageResource;
-        }
-
-        public String getAlbumName() {
-            return albumName;
-        }
-
-
-        public int getImageResource() {
-            return imageResource;
-        }
+    // Giao diện cho click listener
+    public interface OnAlbumClickListener {
+        void onAlbumClick(Album album);
     }
 }

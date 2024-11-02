@@ -276,40 +276,52 @@ public class DBHelper extends SQLiteOpenHelper {
         Log.d(TAG, "getRecentSongs: Total songs retrieved = " + songs.size());
         return songs;
     }
+    public int getOrCreateDefaultAlbum() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Kiểm tra xem album mặc định đã tồn tại chưa
+        Cursor cursor = db.query(TABLE_ALBUMS, new String[]{COLUMN_ALBUM_ID},
+                COLUMN_ALBUM_TITLE + "=?", new String[]{"Default Album"},
+                null, null, null);
+
+        if (cursor.moveToFirst()) {
+            int albumId = cursor.getInt(0);
+            cursor.close();
+            return albumId;
+        }
+
+        // Nếu chưa có, tạo album mặc định
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ALBUM_TITLE, "Default Album");
+        values.put(COLUMN_RELEASE_DATE, "2024-01-01");
+        values.put(COLUMN_USER_ID, 1); // Giả sử user_id = 1 là admin
+
+        long albumId = db.insert(TABLE_ALBUMS, null, values);
+        cursor.close();
+        return (int) albumId;
+    }
     // Song methods
     public boolean addSong(String title, String artist, int albumId, int duration, String songUrl, byte[] image) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
-        try {
-            contentValues.put(COLUMN_SONG_TITLE, title);
-            contentValues.put(COLUMN_ARTIST, artist);
-            contentValues.put(COLUMN_ALBUM_ID, albumId);
-            contentValues.put(COLUMN_DURATION, duration);
-            contentValues.put(COLUMN_SONG_URL, songUrl);
-            contentValues.put(COLUMN_SONG_IMAGE, image);
-
-            long result = db.insert(TABLE_SONGS, null, contentValues);
-            Log.d(TAG, "Add song result: " + result);
-            return result != -1;
-        } catch (Exception e) {
-            Log.e(TAG, "Error adding song: " + e.getMessage());
-            return false;
-        } finally {
-            db.close();
+        // Nếu không có albumId được chỉ định, sử dụng album mặc định
+        if (albumId <= 0) {
+            albumId = getOrCreateDefaultAlbum();
         }
-    }
 
-    // Overload method để hỗ trợ thêm đối tượng Song
-    public boolean addSong(Song song) {
-        return addSong(
-                song.getTitle(),
-                song.getArtist(),
-                song.getAlbumId(),
-                song.getDuration(),
-                song.getSongUrl(),
-                song.getImage()
-        );
+        contentValues.put(COLUMN_SONG_TITLE, title);
+        contentValues.put(COLUMN_ARTIST, artist);
+        contentValues.put(COLUMN_ALBUM_ID, albumId);
+        contentValues.put(COLUMN_DURATION, duration);
+        contentValues.put(COLUMN_SONG_URL, songUrl);
+        if (image != null) {
+            contentValues.put(COLUMN_SONG_IMAGE, image);
+        }
+
+        long result = db.insert(TABLE_SONGS, null, contentValues);
+        Log.d(TAG, "Add song result: " + result + " for song: " + title);
+        return result != -1;
     }
 
     public List<Song> getAllSongs() {
@@ -429,6 +441,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
     // Thêm các phương thức này vào class DBHelper
 
+    // Album methods
     public boolean addAlbum(String title, byte[] image, String releaseDate, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -508,6 +521,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[]{String.valueOf(albumId)});
         return rowsAffected > 0;
     }
+
+    // Listening History methods
     public boolean addListeningHistory(int userId, int songId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -518,6 +533,7 @@ public class DBHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_LISTENING_HISTORY, null, values);
         return result != -1;
     }
+
     public static class ListeningHistoryItem {
         private int historyId;
         private int userId;
@@ -544,6 +560,7 @@ public class DBHelper extends SQLiteOpenHelper {
         public String getArtist() { return artist; }
         public String getTimestamp() { return timestamp; }
     }
+
     public List<ListeningHistoryItem> getUserListeningHistory(int userId) {
         List<ListeningHistoryItem> history = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -552,12 +569,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 ", h." + COLUMN_SONG_ID + ", s." + COLUMN_SONG_TITLE +
                 ", s." + COLUMN_ARTIST + ", h." + COLUMN_TIMESTAMP +
                 " FROM " + TABLE_LISTENING_HISTORY + " h" +
-                " JOIN " + TABLE_SONGS + " s ON h." + COLUMN_SONG_ID +
-                " = s." + COLUMN_SONG_ID +
+                " JOIN " + TABLE_SONGS + " s ON h." + COLUMN_SONG_ID + " = s." + COLUMN_SONG_ID +
                 " WHERE h." + COLUMN_USER_ID + " = ?" +
                 " ORDER BY h." + COLUMN_TIMESTAMP + " DESC";
 
         try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)})) {
+            Log.d(TAG, "Executing query: " + query + " with userId: " + userId);
             if (cursor.moveToFirst()) {
                 do {
                     ListeningHistoryItem item = new ListeningHistoryItem(
@@ -570,11 +587,14 @@ public class DBHelper extends SQLiteOpenHelper {
                     );
                     history.add(item);
                 } while (cursor.moveToNext());
+            } else {
+                Log.d(TAG, "No history found for userId: " + userId);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error getting user listening history: " + e.getMessage());
         }
 
+        Log.d(TAG, "Total history items retrieved: " + history.size());
         return history;
     }
 

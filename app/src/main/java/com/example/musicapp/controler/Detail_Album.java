@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.musicapp.Play_song;
 import com.example.musicapp.R;
 import com.example.musicapp.SongAdapter;
 import com.example.musicapp.model.Song;
