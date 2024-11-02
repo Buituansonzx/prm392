@@ -91,20 +91,16 @@ public class AlbumManagement extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng nhập tiêu đề album", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Nếu albumImage là null, đặt ảnh mặc định
         if (albumImage == null) {
-            Toast.makeText(this, "Vui lòng chọn hình ảnh cho album", Toast.LENGTH_SHORT).show();
-            return;
+            albumImage = BitmapFactory.decodeResource(getResources(), R.drawable.icon_album).getNinePatchChunk();
         }
 
         // Lấy ngày hiện tại
-        LocalDate currentDate = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            currentDate = LocalDate.now();
-        }
-        String releaseDate = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            releaseDate = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        }
+        String releaseDate = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O
+                ? LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                : null;
 
         if (dbHelper.addAlbum(title, albumImage, releaseDate, userId)) {
             Toast.makeText(this, "Album đã được thêm!", Toast.LENGTH_SHORT).show();
@@ -118,6 +114,7 @@ public class AlbumManagement extends AppCompatActivity {
             Toast.makeText(this, "Thêm album thất bại!", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
