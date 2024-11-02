@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.musicapp.AlbumManagement;
 import com.example.musicapp.AlbumsAdapter;
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.PlaylistAdapter;
@@ -166,14 +167,14 @@ public class Home extends AppCompatActivity {
             List<Album> allAlbums = dbHelper.getAllAlbums();
             Log.d(TAG, "All albums loaded: " + allAlbums.size());
 
-            List<AlbumsAdapter.AlbumsItem> albumItems = new ArrayList<>();
+            //List<AlbumsAdapter.AlbumsItem> albumItems = new ArrayList<>();
 //            for (Album album : allAlbums) {
 //                albumItems.add(new AlbumsAdapter.AlbumsItem(album.getTitle(), album.getImage()));
 //            }
 
-            albumsAdapter = new AlbumsAdapter(albumItems);
-            recyclerAlbum.setAdapter(albumsAdapter);
-            Log.d(TAG, "Albums loaded: " + albumItems.size());
+            //albumsAdapter = new AlbumsAdapter(albumItems);
+            //recyclerAlbum.setAdapter(albumsAdapter);
+            //Log.d(TAG, "Albums loaded: " + albumItems.size());
         } catch (Exception e) {
             Log.e(TAG, "Error loading songs and albums", e);
             Toast.makeText(this, "Error loading content: " + e.getMessage(), Toast.LENGTH_SHORT).show();

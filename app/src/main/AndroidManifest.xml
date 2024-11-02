@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="true"
@@ -37,26 +38,33 @@
         </activity>
 
         <activity
-            android:name=".controler.ManagerUserActivity"
-            android:exported="true" />
-
-        <activity
-            android:name=".controler.login"
+            android:name=".forgotpass.ForgotPassword"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".forgotpass.EnterOtpActivity" />
+
+
+        <activity
+            android:name=".controler.ManagerUserActivity"
+            android:exported="true" />
+
+        <activity android:name=".forgotpass.ResetPasswordActivity">
+
+        </activity>
+
+        <activity
+            android:name=".controler.login"
+            android:exported="true" />
 
         <activity
             android:name=".controler.manage_song"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+
         </activity>
 
         <activity
@@ -77,12 +85,18 @@
 
         <activity
             android:name=".controler.Home"
-            android:exported="true">
-
-        </activity>
+            android:exported="true" />
 
         <activity
             android:name=".MainActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".AlbumManagement"
+            android:exported="true" />
+
+        <activity
+            android:name=".ListeningHistoryActivity"
             android:exported="true" />
 
     </application>
