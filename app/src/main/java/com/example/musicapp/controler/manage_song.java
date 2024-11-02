@@ -2,22 +2,21 @@ package com.example.musicapp.controler;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
-import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicapp.DBHelper;
-import com.example.musicapp.Play_song;
 import com.example.musicapp.R;
 import com.example.musicapp.SongAdapter;
 import com.example.musicapp.model.Song;
@@ -28,6 +27,7 @@ import java.util.List;
 
 public class manage_song extends AppCompatActivity {
     private static final int ADD_SONG_REQUEST_CODE = 1;
+    private static final String TAG = "manage_song";
 
     private RecyclerView songRecyclerView;
     private SearchView searchView;
@@ -36,6 +36,7 @@ public class manage_song extends AppCompatActivity {
     private ProgressBar loadingProgressBar;
     private List<Song> songList;
     private SongAdapter songAdapter;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class manage_song extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         setupRecyclerView();
-        loadSongs();
+        loadSongs(); // Load songs first
         setupListeners();
     }
 
@@ -56,6 +57,7 @@ public class manage_song extends AppCompatActivity {
         emptyStateView = findViewById(R.id.emptyStateView);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
         songList = new ArrayList<>();
+        dbHelper = new DBHelper(this);
     }
 
     private void setupToolbar() {
@@ -71,9 +73,7 @@ public class manage_song extends AppCompatActivity {
         songAdapter = new SongAdapter(songList, new SongAdapter.OnSongClickListener() {
             @Override
             public void onSongClick(Song song) {
-                Intent intent = new Intent(manage_song.this, Play_song.class);
-                intent.putExtra("song", song);
-                startActivity(intent);
+                playSong(song);
             }
 
             @Override
@@ -85,59 +85,64 @@ public class manage_song extends AppCompatActivity {
         songRecyclerView.setAdapter(songAdapter);
     }
 
+    private void playSong(Song song) {
+        Intent intent = new Intent(manage_song.this, Play_song.class);
+        intent.putExtra("song", song);
+        startActivity(intent);
+    }
+
+    private void loadSongs() {
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        songList.clear();
+
+        // Lấy danh sách bài hát từ database
+        List<Song> songsFromDb = dbHelper.getAllSongs();
+
+        // Nếu không có bài hát nào, thêm bài hát mẫu
+        if (songsFromDb.isEmpty()) {
+
+            songsFromDb = dbHelper.getAllSongs(); // Lấy lại danh sách sau khi thêm
+        }
+
+        songList.addAll(songsFromDb);
+        songAdapter.notifyDataSetChanged();
+        loadingProgressBar.setVisibility(View.GONE);
+        updateEmptyState();
+
+        Log.d(TAG, "Loaded " + songList.size() + " songs");
+    }
+
+
+
     private void showPopupMenu(Song song, View view) {
         PopupMenu popup = new PopupMenu(this, view);
         popup.inflate(R.menu.song_item_menu);
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
-                if (itemId == R.id.action_edit) {
-                    // Xử lý khi chọn edit
-                    editSong(song);
-                    return true;
-                } else if (itemId == R.id.action_delete) {
-                    // Xử lý khi chọn delete
-                    deleteSong(song);
-                    return true;
-                }
-                return false;
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_edit) {
+                editSong(song);
+                return true;
+            } else if (item.getItemId() == R.id.action_delete) {
+                deleteSong(song);
+                return true;
             }
+            return false;
         });
         popup.show();
     }
 
     private void editSong(Song song) {
-        // Implement logic to edit song
+        // TODO: Implement edit functionality
         Toast.makeText(this, "Edit song: " + song.getTitle(), Toast.LENGTH_SHORT).show();
     }
 
     private void deleteSong(Song song) {
-        DBHelper db = new DBHelper(this);
-        db.deleteSong(song.getId());
-        songList.remove(song);
-        songAdapter.notifyDataSetChanged();
-        updateEmptyState();
-        Toast.makeText(this, "Deleted: " + song.getTitle(), Toast.LENGTH_SHORT).show();
-    }
-
-    private void loadSongs() {
-        loadingProgressBar.setVisibility(View.VISIBLE);
-        DBHelper db = new DBHelper(this);
-        songList.clear();
-        songList.addAll(db.getAllSongs());
-        songAdapter.notifyDataSetChanged();
-        loadingProgressBar.setVisibility(View.GONE);
-        updateEmptyState();
-    }
-
-    private void updateEmptyState() {
-        if (songList.isEmpty()) {
-            emptyStateView.setVisibility(View.VISIBLE);
-            songRecyclerView.setVisibility(View.GONE);
+        if (dbHelper.deleteSong(song.getId())) {
+            songList.remove(song);
+            songAdapter.notifyDataSetChanged();
+            updateEmptyState();
+            Toast.makeText(this, "Đã xóa: " + song.getTitle(), Toast.LENGTH_SHORT).show();
         } else {
-            emptyStateView.setVisibility(View.GONE);
-            songRecyclerView.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Không thể xóa bài hát", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -164,12 +169,23 @@ public class manage_song extends AppCompatActivity {
     private void filterSongs(String query) {
         List<Song> filteredList = new ArrayList<>();
         for (Song song : songList) {
-            if (song.getTitle().toLowerCase().contains(query.toLowerCase())) {
+            if (song.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    song.getArtist().toLowerCase().contains(query.toLowerCase())) {
                 filteredList.add(song);
             }
         }
         songAdapter.updateList(filteredList);
         updateEmptyState();
+    }
+
+    private void updateEmptyState() {
+        if (songList.isEmpty()) {
+            emptyStateView.setVisibility(View.VISIBLE);
+            songRecyclerView.setVisibility(View.GONE);
+        } else {
+            emptyStateView.setVisibility(View.GONE);
+            songRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -185,5 +201,18 @@ public class manage_song extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+    }
+
+    // Phương thức này có thể được sử dụng để cập nhật danh sách bài hát từ bên ngoài
+    public void refreshSongList() {
+        loadSongs();
     }
 }
