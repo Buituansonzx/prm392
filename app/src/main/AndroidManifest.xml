@@ -91,6 +91,10 @@
             android:name=".MainActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".AlbumManagement"
+            android:exported="true" />
+
 
 
     </application>
