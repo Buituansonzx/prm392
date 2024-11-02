@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.musicapp" />
+                  <option name="mobileSdkAppId" value="1:1011268580139:android:449cd73799d0466ff10b6e" />
+                  <option name="projectId" value="sendotp-a0369" />
+                  <option name="projectNumber" value="1011268580139" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
