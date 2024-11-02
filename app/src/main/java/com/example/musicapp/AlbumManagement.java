@@ -97,8 +97,14 @@ public class AlbumManagement extends AppCompatActivity {
         }
 
         // Lấy ngày hiện tại
-        LocalDate currentDate = LocalDate.now();
-        String releaseDate = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        LocalDate currentDate = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            currentDate = LocalDate.now();
+        }
+        String releaseDate = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            releaseDate = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+        }
 
         if (dbHelper.addAlbum(title, albumImage, releaseDate, userId)) {
             Toast.makeText(this, "Album đã được thêm!", Toast.LENGTH_SHORT).show();
