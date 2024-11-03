@@ -142,4 +142,7 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
     public void onSongOptionsClick(Song song, View view) {
         // Xử lý sự kiện khi nhấn vào nút menu
     }
+
+
+    //Test git
 }
