@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.musicapp.AlbumManagement;
 import com.example.musicapp.AlbumsAdapter;
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.PlaylistAdapter;
