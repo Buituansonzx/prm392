@@ -86,7 +86,13 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnAddAlbum.setOnClickListener(v -> showAddAlbumDialog());
+        // Mở AlbumManagement activity khi nhấn vào nút "+ Album"
+        btnAddAlbum.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AlbumManagement.class);
+            intent.putExtra("USER_ID", userId); // truyền userId nếu cần thiết
+            startActivity(intent);
+        });
+
         Log.d(TAG, "Click listeners set up");
     }
 
