@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/gradient_background"
-        tools:context=".controler.RegisterAccount">
+        tools:context=".controller.RegisterAccount">
 
         <ImageView
             android:id="@+id/imageView2"

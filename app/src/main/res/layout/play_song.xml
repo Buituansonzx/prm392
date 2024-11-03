@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background"
-    tools:context=".controler.Play_song">
+    tools:context=".controller.Play_song">
 
     <RelativeLayout
         android:id="@+id/top_bar"

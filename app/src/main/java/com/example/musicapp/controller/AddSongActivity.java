@@ -1,4 +1,4 @@
-package com.example.musicapp.controler;
+package com.example.musicapp.controller;
 
 import android.Manifest;
 import android.app.ProgressDialog;

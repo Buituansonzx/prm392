@@ -1,4 +1,4 @@
-package com.example.musicapp.controler;
+package com.example.musicapp.controller;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

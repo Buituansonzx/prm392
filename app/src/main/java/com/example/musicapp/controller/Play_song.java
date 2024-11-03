@@ -1,4 +1,4 @@
-package com.example.musicapp.controler;
+package com.example.musicapp.controller;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +20,7 @@ import com.example.musicapp.R;
 import com.example.musicapp.model.Song;
 
 import java.io.IOException;
+import java.util.Locale;
 
 public class Play_song extends AppCompatActivity {
 
@@ -31,6 +32,7 @@ public class Play_song extends AppCompatActivity {
     private MediaPlayer mediaPlayer;
     private Handler handler = new Handler();
     private Runnable updateSeekBarRunnable;
+    private boolean isPlaying = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,10 @@ public class Play_song extends AppCompatActivity {
 
         initializeViews();
         setupClickListeners();
+        getIntentData();
+    }
 
+    private void getIntentData() {
         song = (Song) getIntent().getSerializableExtra("song");
         if (song == null) {
             Log.e(TAG, "No song data received");
@@ -50,29 +55,6 @@ public class Play_song extends AppCompatActivity {
 
         updateSongInfo();
         setupMediaPlayer();
-    }
-
-    private void startUpdateSeekBarProgress() {
-        if (updateSeekBarRunnable == null) {
-            updateSeekBarRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        int currentPosition = mediaPlayer.getCurrentPosition();
-                        seekBar.setProgress(currentPosition);
-                        currentTimeTv.setText(formatTime(currentPosition));
-                        handler.postDelayed(this, 100);
-                    }
-                }
-            };
-        }
-        handler.post(updateSeekBarRunnable);
-    }
-
-    private void stopUpdateSeekBarProgress() {
-        if (updateSeekBarRunnable != null) {
-            handler.removeCallbacks(updateSeekBarRunnable);
-        }
     }
 
     private void initializeViews() {
@@ -86,26 +68,56 @@ public class Play_song extends AppCompatActivity {
         previousBtn = findViewById(R.id.previous);
         musicIcon = findViewById(R.id.music_icon_big);
         btnBack = findViewById(R.id.btn_back);
+
+        // Thiết lập trạng thái ban đầu
+        pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
     }
 
     private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> finish());
+        btnBack.setOnClickListener(v -> onBackPressed());
+
+        nextBtn.setOnClickListener(v -> playNextSong());
+        previousBtn.setOnClickListener(v -> playPreviousSong());
+    }
+
+    private void playNextSong() {
+        // Implement logic để chơi bài hát tiếp theo
+        Toast.makeText(this, "Next song", Toast.LENGTH_SHORT).show();
+    }
+
+    private void playPreviousSong() {
+        // Implement logic để chơi bài hát trước
+        Toast.makeText(this, "Previous song", Toast.LENGTH_SHORT).show();
     }
 
     private void updateSongInfo() {
-        titleTv.setText(song.getTitle());
-        artistTv.setText(song.getArtist());
+        if (song != null) {
+            titleTv.setText(song.getTitle());
+            artistTv.setText(song.getArtist());
+            updateMusicIcon();
+        }
+    }
 
+    private void updateMusicIcon() {
         byte[] imageData = song.getImage();
         if (imageData != null && imageData.length > 0) {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
-            RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
-            roundedBitmapDrawable.setCircular(true);
-            musicIcon.setImageDrawable(roundedBitmapDrawable);
+            try {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageData, 0, imageData.length);
+                RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bitmap);
+                roundedBitmapDrawable.setCircular(true);
+                musicIcon.setImageDrawable(roundedBitmapDrawable);
+            } catch (Exception e) {
+                Log.e(TAG, "Error loading image", e);
+                musicIcon.setImageResource(R.drawable.default_song_image); // Thêm icon mặc định
+            }
         }
     }
 
     private void setupMediaPlayer() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioAttributes(
                 new AudioAttributes.Builder()
@@ -117,34 +129,49 @@ public class Play_song extends AppCompatActivity {
         try {
             mediaPlayer.setDataSource(song.getSongUrl());
             mediaPlayer.prepareAsync();
+
             mediaPlayer.setOnPreparedListener(mp -> {
                 totalTimeTv.setText(formatTime(mediaPlayer.getDuration()));
                 seekBar.setMax(mediaPlayer.getDuration());
-                mediaPlayer.start();
-                startUpdateSeekBarProgress();
+                startPlayback();
             });
+
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "MediaPlayer error: " + what + ", " + extra);
+                Toast.makeText(Play_song.this, "Error playing audio", Toast.LENGTH_SHORT).show();
+                return false;
+            });
+
+            mediaPlayer.setOnCompletionListener(mp -> {
+                pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
+                stopUpdateSeekBarProgress();
+                isPlaying = false;
+            });
+
         } catch (IOException e) {
             Log.e(TAG, "Error setting data source", e);
             Toast.makeText(this, "Error playing song", Toast.LENGTH_SHORT).show();
         }
 
-        mediaPlayer.setOnCompletionListener(mp -> {
-            pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
-            stopUpdateSeekBarProgress();
-        });
-
         setupSeekBar();
         setupPlayPauseButton();
+    }
+
+    private void startPlayback() {
+        mediaPlayer.start();
+        isPlaying = true;
+        pausePlay.setImageResource(R.drawable.baseline_pause_circle_outline_24);
+        startUpdateSeekBarProgress();
     }
 
     private void setupSeekBar() {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser) {
+                if (fromUser && mediaPlayer != null) {
                     mediaPlayer.seekTo(progress);
+                    currentTimeTv.setText(formatTime(progress));
                 }
-                currentTimeTv.setText(formatTime(progress));
             }
 
             @Override
@@ -157,23 +184,53 @@ public class Play_song extends AppCompatActivity {
 
     private void setupPlayPauseButton() {
         pausePlay.setOnClickListener(v -> {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
-                stopUpdateSeekBarProgress();
-            } else {
-                mediaPlayer.start();
-                pausePlay.setImageResource(R.drawable.baseline_pause_circle_outline_24);
-                startUpdateSeekBarProgress();
+            if (mediaPlayer != null) {
+                if (isPlaying) {
+                    mediaPlayer.pause();
+                    pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
+                    stopUpdateSeekBarProgress();
+                } else {
+                    mediaPlayer.start();
+                    pausePlay.setImageResource(R.drawable.baseline_pause_circle_outline_24);
+                    startUpdateSeekBarProgress();
+                }
+                isPlaying = !isPlaying;
             }
         });
+    }
+
+    private void startUpdateSeekBarProgress() {
+        if (updateSeekBarRunnable == null) {
+            updateSeekBarRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        try {
+                            int currentPosition = mediaPlayer.getCurrentPosition();
+                            seekBar.setProgress(currentPosition);
+                            currentTimeTv.setText(formatTime(currentPosition));
+                            handler.postDelayed(this, 100);
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "Error updating seekbar", e);
+                        }
+                    }
+                }
+            };
+        }
+        handler.post(updateSeekBarRunnable);
+    }
+
+    private void stopUpdateSeekBarProgress() {
+        if (updateSeekBarRunnable != null) {
+            handler.removeCallbacks(updateSeekBarRunnable);
+        }
     }
 
     private String formatTime(int milliseconds) {
         int seconds = milliseconds / 1000;
         int minutes = seconds / 60;
         seconds = seconds % 60;
-        return String.format("%02d:%02d", minutes, seconds);
+        return String.format( Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 
     @Override
