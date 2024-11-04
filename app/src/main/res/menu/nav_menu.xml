@@ -3,12 +3,10 @@
         android:id="@+id/nav_home"
         android:icon="@drawable/icon_home"
         android:title="@string/home" />
-
     <item
         android:id="@+id/nav_search"
         android:icon="@drawable/icon_search"
         android:title="@string/search" />
-
     <item
         android:id="@+id/nav_setting"
         android:icon="@drawable/icon_setting"
@@ -16,6 +14,5 @@
     <item
         android:id="@+id/nav_user"
         android:icon="@drawable/icon_user"
-        android:title="@string/user"
-        />
+        android:title="@string/user" />
 </menu>
