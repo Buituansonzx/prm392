@@ -11,9 +11,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.musicapp.AlbumManagement;
-import com.example.musicapp.AlbumsAdapter;
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.PlaylistAdapter;
 import com.example.musicapp.R;
@@ -34,7 +31,6 @@ public class Home extends AppCompatActivity {
     private static final String TAG = "Home";
     private PlaylistAdapter playlistAdapter;
     private RecyclerView recyclerAlbum;
-    private AlbumsAdapter albumsAdapter;
     private int userId;
     private ImageView notificationIcon;
     private ImageView profileImage;
@@ -87,11 +83,6 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnAddAlbum.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AlbumManagement.class);
-            intent.putExtra("USER_ID", userId);
-            startActivity(intent);
-        });
 
         Log.d(TAG, "Click listeners set up");
     }
