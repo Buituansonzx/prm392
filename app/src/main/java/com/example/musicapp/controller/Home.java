@@ -32,7 +32,6 @@ public class Home extends AppCompatActivity {
     private int userId;
     private ImageView notificationIcon;
     private ImageView profileImage;
-    private Button btnAddAlbum;
     private DBHelper dbHelper;
 
     @Override
@@ -66,7 +65,6 @@ public class Home extends AppCompatActivity {
     private void initializeViews() {
         notificationIcon = findViewById(R.id.icon_noti);
         profileImage = findViewById(R.id.circleImageView);
-        btnAddAlbum = findViewById(R.id.btn_add_album);
         recyclerAlbum = findViewById(R.id.recyclerablbums);
         Log.d(TAG, "Views initialized");
     }
@@ -81,11 +79,6 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         });
 
-        btnAddAlbum.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AlbumManagement.class);
-            intent.putExtra("USER_ID", userId);
-            startActivity(intent);
-        });
 
         Log.d(TAG, "Click listeners set up");
     }
