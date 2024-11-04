@@ -32,12 +32,12 @@
         app:layout_constraintTop_toBottomOf="@id/madeforyou" />
 
     <TextView
-        android:id="@+id/albums"
+        android:id="@+id/favorites"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
-        android:text="@string/my_albums"
+        android:text="@string/favorite_songs"
         android:textColor="@color/white"
         android:textSize="36sp"
         android:textStyle="bold"
@@ -45,13 +45,13 @@
         app:layout_constraintTop_toBottomOf="@id/recyclerview" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerablbums"
+        android:id="@+id/recyclerFavorites"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/albums" />
+        app:layout_constraintTop_toBottomOf="@id/favorites" />
 
     <ImageView
         android:id="@+id/icon_noti"
@@ -91,20 +91,9 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recyclerablbums">
+        app:layout_constraintTop_toBottomOf="@id/recyclerFavorites">
 
-        <Button
-            android:id="@+id/btn_add_album"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="+ ALBUM"
-            android:textStyle="bold"
-            android:textColor="@color/button_text_color"
-            android:background="@drawable/ripple_effect"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+
     </FrameLayout>
 
     <!-- BottomNavigationView -->
