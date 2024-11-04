@@ -162,7 +162,7 @@ public class AddSongActivity extends AppCompatActivity {
         byte[] finalImageBytes = imageBytes;
         executorService.execute(() -> {
             try {
-                boolean isSuccess = dbHelper.addSong(title, artist, duration, songUrl, finalImageBytes);
+                boolean isSuccess = dbHelper.addSong(title, artist, albumId, duration, songUrl, finalImageBytes);
 
                 runOnUiThread(() -> {
                     progressDialog.dismiss();

@@ -7,20 +7,22 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.PlaylistAdapter;
 import com.example.musicapp.R;
 import com.example.musicapp.SearchActivity;
 import com.example.musicapp.SettingActivity;
 import com.example.musicapp.UserActivity;
+import com.example.musicapp.model.Album;
 import com.example.musicapp.model.User;
 import com.example.musicapp.model.Song;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity {
@@ -32,6 +34,7 @@ public class Home extends AppCompatActivity {
     private int userId;
     private ImageView notificationIcon;
     private ImageView profileImage;
+    private Button btnAddAlbum;
     private DBHelper dbHelper;
 
     @Override
@@ -65,6 +68,7 @@ public class Home extends AppCompatActivity {
     private void initializeViews() {
         notificationIcon = findViewById(R.id.icon_noti);
         profileImage = findViewById(R.id.circleImageView);
+        btnAddAlbum = findViewById(R.id.btn_add_album);
         recyclerAlbum = findViewById(R.id.recyclerablbums);
         Log.d(TAG, "Views initialized");
     }
