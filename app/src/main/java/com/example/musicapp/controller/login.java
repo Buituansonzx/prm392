@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.R;
+import com.example.musicapp.forgotpass.ForgotPassword;
 import com.example.musicapp.model.User;
 
 public class login extends AppCompatActivity {
@@ -24,6 +25,8 @@ public class login extends AppCompatActivity {
     private Button loginButton;
     private TextView signUpTextView;
     private DBHelper dbHelper;
+    private TextView forgotPassTextView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,13 @@ public class login extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        forgotPassTextView.setOnClickListener(new View.OnClickListener() { // Add this listener
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(login.this, ForgotPassword.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void initializeViews() {
@@ -54,6 +64,7 @@ public class login extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.btn_login);
         signUpTextView = findViewById(R.id.textView);
+        forgotPassTextView = findViewById(R.id.forgotPass);
     }
 
     private void performLogin() {
