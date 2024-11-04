@@ -30,11 +30,12 @@ public class Play_song extends AppCompatActivity {
     private static final String TAG = "Play_song";
     private TextView titleTv, artistTv, currentTimeTv, totalTimeTv;
     private SeekBar seekBar;
-    private ImageView pausePlay, nextBtn, previousBtn, musicIcon, btnBack;
+    private ImageView pausePlay, nextBtn, previousBtn, musicIcon, btnBack, favoriteButton;
     private MediaPlayer mediaPlayer;
     private Handler handler = new Handler();
     private Runnable updateSeekBarRunnable;
     private boolean isPlaying = false;
+    private boolean isFavorite = false;
 
     private List<Song> playlist;
     private int currentSongIndex;
@@ -52,6 +53,30 @@ public class Play_song extends AppCompatActivity {
         getIntentData();
     }
 
+    private void initializeViews() {
+        titleTv = findViewById(R.id.song_title);
+        artistTv = findViewById(R.id.artist_name);
+        currentTimeTv = findViewById(R.id.current_time);
+        totalTimeTv = findViewById(R.id.total_time);
+        seekBar = findViewById(R.id.seek_bar);
+        pausePlay = findViewById(R.id.pause_play);
+        nextBtn = findViewById(R.id.next);
+        previousBtn = findViewById(R.id.previous);
+        musicIcon = findViewById(R.id.music_icon_big);
+        btnBack = findViewById(R.id.btn_back);
+        favoriteButton = findViewById(R.id.favoriteButton); // Khởi tạo nút yêu thích
+
+        pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
+    }
+
+    private void setupClickListeners() {
+        btnBack.setOnClickListener(v -> onBackPressed());
+        nextBtn.setOnClickListener(v -> playNextSong());
+        previousBtn.setOnClickListener(v -> playPreviousSong());
+        pausePlay.setOnClickListener(v -> togglePlayPause());
+        favoriteButton.setOnClickListener(v -> toggleFavorite()); // Thêm sự kiện cho nút yêu thích
+    }
+
     private void getIntentData() {
         currentSongIndex = getIntent().getIntExtra("position", -1);
         userId = getIntent().getIntExtra("USER_ID", -1);
@@ -65,7 +90,22 @@ public class Play_song extends AppCompatActivity {
 
         loadPlaylist();
     }
-
+    private void playNextSong() {
+        if (currentSongIndex < playlist.size() - 1) {
+            currentSongIndex++;
+        } else {
+            currentSongIndex = 0;
+        }
+        playSong();
+    }
+    private void playPreviousSong() {
+        if (currentSongIndex > 0) {
+            currentSongIndex--;
+        } else {
+            currentSongIndex = playlist.size() - 1;
+        }
+        playSong();
+    }
     private void loadPlaylist() {
         playlist = dbHelper.getAllSongs();
         if (playlist == null || playlist.isEmpty() || currentSongIndex >= playlist.size()) {
@@ -78,46 +118,6 @@ public class Play_song extends AppCompatActivity {
         playSong();
     }
 
-    private void initializeViews() {
-        titleTv = findViewById(R.id.song_title);
-        artistTv = findViewById(R.id.artist_name);
-        currentTimeTv = findViewById(R.id.current_time);
-        totalTimeTv = findViewById(R.id.total_time);
-        seekBar = findViewById(R.id.seek_bar);
-        pausePlay = findViewById(R.id.pause_play);
-        nextBtn = findViewById(R.id.next);
-        previousBtn = findViewById(R.id.previous);
-        musicIcon = findViewById(R.id.music_icon_big);
-        btnBack = findViewById(R.id.btn_back);
-
-        pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
-    }
-
-    private void setupClickListeners() {
-        btnBack.setOnClickListener(v -> onBackPressed());
-        nextBtn.setOnClickListener(v -> playNextSong());
-        previousBtn.setOnClickListener(v -> playPreviousSong());
-        pausePlay.setOnClickListener(v -> togglePlayPause());
-    }
-
-    private void playNextSong() {
-        if (currentSongIndex < playlist.size() - 1) {
-            currentSongIndex++;
-        } else {
-            currentSongIndex = 0;
-        }
-        playSong();
-    }
-
-    private void playPreviousSong() {
-        if (currentSongIndex > 0) {
-            currentSongIndex--;
-        } else {
-            currentSongIndex = playlist.size() - 1;
-        }
-        playSong();
-    }
-
     private void playSong() {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
@@ -127,6 +127,7 @@ public class Play_song extends AppCompatActivity {
         Song song = playlist.get(currentSongIndex);
         updateSongInfo(song);
         setupMediaPlayer(song);
+        updateFavoriteStatus(); // Cập nhật trạng thái yêu thích
     }
 
     private void updateSongInfo(Song song) {
@@ -202,7 +203,7 @@ public class Play_song extends AppCompatActivity {
     private void setupSeekBar() {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser ) {
                 if (fromUser && mediaPlayer != null) {
                     mediaPlayer.seekTo(progress);
                     currentTimeTv.setText(formatTime(progress));
@@ -264,6 +265,30 @@ public class Play_song extends AppCompatActivity {
         int minutes = seconds / 60;
         seconds = seconds % 60;
         return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+    }
+
+    private void updateFavoriteStatus() {
+        Song currentSong = playlist.get(currentSongIndex);
+        isFavorite = dbHelper.isSongFavorite(userId, currentSong.getId());
+        updateFavoriteButton();
+    }
+
+    private void updateFavoriteButton() {
+        favoriteButton.setImageResource(isFavorite ?
+                R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+    }
+
+    private void toggleFavorite() {
+        Song currentSong = playlist.get(currentSongIndex);
+        if (isFavorite) {
+            dbHelper.removeFavoriteSong(userId, currentSong.getId());
+            Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show();
+        } else {
+            dbHelper.addFavoriteSong(userId, currentSong.getId());
+            Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
+        }
+        isFavorite = !isFavorite;
+        updateFavoriteButton();
     }
 
     @Override

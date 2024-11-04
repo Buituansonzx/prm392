@@ -68,7 +68,7 @@ public class Home extends AppCompatActivity {
     private void initializeViews() {
         notificationIcon = findViewById(R.id.icon_noti);
         profileImage = findViewById(R.id.circleImageView);
-        btnAddAlbum = findViewById(R.id.btn_add_album);
+
         recyclerAlbum = findViewById(R.id.recyclerablbums);
         Log.d(TAG, "Views initialized");
     }
