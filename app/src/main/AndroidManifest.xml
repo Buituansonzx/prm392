@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -13,104 +15,71 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/logomusic2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/logomusic2"
         android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/logomusic2"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicApp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".AnalyticsAdmin"
+            android:exported="false" />
         <activity
             android:name=".controller.Play_song"
             android:exported="true" />
-
         <activity
             android:name=".controller.AddSongActivity"
-            android:exported="true" >
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".controller.RegisterAccount"
             android:exported="true" />
-
         <activity
             android:name=".controller.HomeAdminActivity"
-            android:exported="true">
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".forgotpass.ForgotPassword"
-            android:exported="true">
-
-        </activity>
+            android:exported="true"></activity>
         <activity android:name=".forgotpass.EnterOtpActivity" />
-
-
         <activity
             android:name=".controller.ManagerUserActivity"
             android:exported="true" />
-
-        <activity android:name=".forgotpass.ResetPasswordActivity">
-
-        </activity>
-
+        <activity android:name=".forgotpass.ResetPasswordActivity"></activity>
         <activity
             android:name=".controller.login"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".controller.manage_song"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
-        </activity>
-
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
         <activity
             android:name=".UserActivity"
             android:exported="true" />
-
         <activity
             android:name=".SettingActivity"
             android:exported="true" />
-
         <activity
             android:name=".SearchActivity"
             android:exported="true" />
-
         <activity
             android:name=".controller.Detail_Album"
-            android:exported="true" >
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".controller.Home"
             android:exported="true" />
-
         <activity
             android:name=".MainActivity"
             android:exported="true" />
-
         <activity
             android:name=".AlbumManagement"
-            android:exported="true" >
-
-        </activity>
-
+            android:exported="true"></activity>
         <activity
             android:name=".ListeningHistoryActivity"
-            android:exported="true" >
-
-
-
-        </activity>
-
+            android:exported="true"></activity>
     </application>
 
 </manifest>
