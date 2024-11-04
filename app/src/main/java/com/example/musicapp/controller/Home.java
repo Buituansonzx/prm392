@@ -87,22 +87,13 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Mở AlbumManagement activity khi nhấn vào nút "+ Album"
         btnAddAlbum.setOnClickListener(v -> {
             Intent intent = new Intent(this, AlbumManagement.class);
-            intent.putExtra("USER_ID", userId); // truyền userId nếu cần thiết
+            intent.putExtra("USER_ID", userId);
             startActivity(intent);
         });
 
         Log.d(TAG, "Click listeners set up");
-    }
-
-    private void showAddAlbumDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Add New Album")
-                .setMessage("This feature will be available soon!")
-                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
-                .show();
     }
 
     private void setupBottomNavigation() {
@@ -156,37 +147,33 @@ public class Home extends AppCompatActivity {
 
     private void loadSongsAndAlbums() {
         try {
-            // Lấy tất cả bài hát từ cơ sở dữ liệu
+            // Load songs
             List<Song> allSongs = dbHelper.getAllSongs();
             Log.d(TAG, "All songs loaded: " + allSongs.size());
 
-            List<PlaylistAdapter.PlaylistItem> playlistItems = new ArrayList<>();
-            for (Song song : allSongs) {
-                playlistItems.add(new PlaylistAdapter.PlaylistItem(song));
-            }
-
-            playlistAdapter = new PlaylistAdapter(playlistItems);
+            playlistAdapter = new PlaylistAdapter(allSongs);
             RecyclerView recyclerView = findViewById(R.id.recyclerview);
             recyclerView.setAdapter(playlistAdapter);
 
-            // Lấy tất cả album từ cơ sở dữ liệu
-            List<Album> allAlbums = dbHelper.getAllAlbums();
-            Log.d(TAG, "All albums loaded: " + allAlbums.size());
+            // Set up OnItemClickListener for PlaylistAdapter
+            playlistAdapter.setOnItemClickListener(new PlaylistAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position, List<Song> playlist) {
+                    Intent intent = new Intent(Home.this, Play_song.class);
+                    intent.putExtra("position", position);
+                    intent.putExtra("USER_ID", userId);
+                    // Nếu bạn muốn truyền toàn bộ playlist, bạn cần implement Parcelable cho lớp Song
+                    // và sử dụng putParcelableArrayListExtra
+                    // intent.putParcelableArrayListExtra("playlist", new ArrayList<>(playlist));
+                    startActivity(intent);
+                }
+            });
 
-            //List<AlbumsAdapter.AlbumsItem> albumItems = new ArrayList<>();
-//            for (Album album : allAlbums) {
-//                albumItems.add(new AlbumsAdapter.AlbumsItem(album.getTitle(), album.getImage()));
-//            }
-
-            //albumsAdapter = new AlbumsAdapter(albumItems);
-            //recyclerAlbum.setAdapter(albumsAdapter);
-            //Log.d(TAG, "Albums loaded: " + albumItems.size());
         } catch (Exception e) {
             Log.e(TAG, "Error loading songs and albums", e);
             Toast.makeText(this, "Error loading content: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     protected void onDestroy() {

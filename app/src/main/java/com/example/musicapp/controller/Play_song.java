@@ -16,10 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
+import com.example.musicapp.DBHelper;
 import com.example.musicapp.R;
 import com.example.musicapp.model.Song;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class Play_song extends AppCompatActivity {
@@ -28,33 +31,51 @@ public class Play_song extends AppCompatActivity {
     private TextView titleTv, artistTv, currentTimeTv, totalTimeTv;
     private SeekBar seekBar;
     private ImageView pausePlay, nextBtn, previousBtn, musicIcon, btnBack;
-    private Song song;
     private MediaPlayer mediaPlayer;
     private Handler handler = new Handler();
     private Runnable updateSeekBarRunnable;
     private boolean isPlaying = false;
+
+    private List<Song> playlist;
+    private int currentSongIndex;
+    private int userId;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.play_song);
 
+        dbHelper = new DBHelper(this);
         initializeViews();
         setupClickListeners();
         getIntentData();
     }
 
     private void getIntentData() {
-        song = (Song) getIntent().getSerializableExtra("song");
-        if (song == null) {
-            Log.e(TAG, "No song data received");
-            Toast.makeText(this, "Error: No song data", Toast.LENGTH_SHORT).show();
+        currentSongIndex = getIntent().getIntExtra("position", -1);
+        userId = getIntent().getIntExtra("USER_ID", -1);
+
+        if (currentSongIndex == -1 || userId == -1) {
+            Log.e(TAG, "Invalid song position or user ID");
+            Toast.makeText(this, "Error: Invalid data", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        updateSongInfo();
-        setupMediaPlayer();
+        loadPlaylist();
+    }
+
+    private void loadPlaylist() {
+        playlist = dbHelper.getAllSongs();
+        if (playlist == null || playlist.isEmpty() || currentSongIndex >= playlist.size()) {
+            Log.e(TAG, "Invalid playlist data or index");
+            Toast.makeText(this, "Error: Invalid playlist data", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        playSong();
     }
 
     private void initializeViews() {
@@ -69,36 +90,52 @@ public class Play_song extends AppCompatActivity {
         musicIcon = findViewById(R.id.music_icon_big);
         btnBack = findViewById(R.id.btn_back);
 
-        // Thiết lập trạng thái ban đầu
         pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
     }
 
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> onBackPressed());
-
         nextBtn.setOnClickListener(v -> playNextSong());
         previousBtn.setOnClickListener(v -> playPreviousSong());
+        pausePlay.setOnClickListener(v -> togglePlayPause());
     }
 
     private void playNextSong() {
-        // Implement logic để chơi bài hát tiếp theo
-        Toast.makeText(this, "Next song", Toast.LENGTH_SHORT).show();
+        if (currentSongIndex < playlist.size() - 1) {
+            currentSongIndex++;
+        } else {
+            currentSongIndex = 0;
+        }
+        playSong();
     }
 
     private void playPreviousSong() {
-        // Implement logic để chơi bài hát trước
-        Toast.makeText(this, "Previous song", Toast.LENGTH_SHORT).show();
-    }
-
-    private void updateSongInfo() {
-        if (song != null) {
-            titleTv.setText(song.getTitle());
-            artistTv.setText(song.getArtist());
-            updateMusicIcon();
+        if (currentSongIndex > 0) {
+            currentSongIndex--;
+        } else {
+            currentSongIndex = playlist.size() - 1;
         }
+        playSong();
     }
 
-    private void updateMusicIcon() {
+    private void playSong() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+
+        Song song = playlist.get(currentSongIndex);
+        updateSongInfo(song);
+        setupMediaPlayer(song);
+    }
+
+    private void updateSongInfo(Song song) {
+        titleTv.setText(song.getTitle());
+        artistTv.setText(song.getArtist());
+        updateMusicIcon(song);
+    }
+
+    private void updateMusicIcon(Song song) {
         byte[] imageData = song.getImage();
         if (imageData != null && imageData.length > 0) {
             try {
@@ -108,16 +145,14 @@ public class Play_song extends AppCompatActivity {
                 musicIcon.setImageDrawable(roundedBitmapDrawable);
             } catch (Exception e) {
                 Log.e(TAG, "Error loading image", e);
-                musicIcon.setImageResource(R.drawable.default_song_image); // Thêm icon mặc định
+                musicIcon.setImageResource(R.drawable.default_song_image);
             }
+        } else {
+            musicIcon.setImageResource(R.drawable.default_song_image);
         }
     }
 
-    private void setupMediaPlayer() {
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
-
+    private void setupMediaPlayer(Song song) {
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioAttributes(
                 new AudioAttributes.Builder()
@@ -146,6 +181,7 @@ public class Play_song extends AppCompatActivity {
                 pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
                 stopUpdateSeekBarProgress();
                 isPlaying = false;
+                playNextSong();
             });
 
         } catch (IOException e) {
@@ -154,7 +190,6 @@ public class Play_song extends AppCompatActivity {
         }
 
         setupSeekBar();
-        setupPlayPauseButton();
     }
 
     private void startPlayback() {
@@ -175,48 +210,46 @@ public class Play_song extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                stopUpdateSeekBarProgress();
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
-    }
-
-    private void setupPlayPauseButton() {
-        pausePlay.setOnClickListener(v -> {
-            if (mediaPlayer != null) {
-                if (isPlaying) {
-                    mediaPlayer.pause();
-                    pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
-                    stopUpdateSeekBarProgress();
-                } else {
-                    mediaPlayer.start();
-                    pausePlay.setImageResource(R.drawable.baseline_pause_circle_outline_24);
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                     startUpdateSeekBarProgress();
                 }
-                isPlaying = !isPlaying;
             }
         });
     }
 
-    private void startUpdateSeekBarProgress() {
-        if (updateSeekBarRunnable == null) {
-            updateSeekBarRunnable = new Runnable() {
-                @Override
-                public void run() {
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        try {
-                            int currentPosition = mediaPlayer.getCurrentPosition();
-                            seekBar.setProgress(currentPosition);
-                            currentTimeTv.setText(formatTime(currentPosition));
-                            handler.postDelayed(this, 100);
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Error updating seekbar", e);
-                        }
-                    }
-                }
-            };
+    private void togglePlayPause() {
+        if (mediaPlayer != null) {
+            if (isPlaying) {
+                mediaPlayer.pause();
+                pausePlay.setImageResource(R.drawable.baseline_play_circle_outline_24);
+                stopUpdateSeekBarProgress();
+            } else {
+                mediaPlayer.start();
+                pausePlay.setImageResource(R.drawable.baseline_pause_circle_outline_24);
+                startUpdateSeekBarProgress();
+            }
+            isPlaying = !isPlaying;
         }
+    }
+
+    private void startUpdateSeekBarProgress() {
+        updateSeekBarRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    seekBar.setProgress(currentPosition);
+                    currentTimeTv.setText(formatTime(currentPosition));
+                }
+                handler.postDelayed(this, 1000);
+            }
+        };
         handler.post(updateSeekBarRunnable);
     }
 
@@ -230,17 +263,19 @@ public class Play_song extends AppCompatActivity {
         int seconds = milliseconds / 1000;
         int minutes = seconds / 60;
         seconds = seconds % 60;
-        return String.format( Locale.getDefault(), "%02d:%02d", minutes, seconds);
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
     }
 
     @Override
     protected void onDestroy() {
-        stopUpdateSeekBarProgress();
         super.onDestroy();
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer = null;
         }
-        handler.removeCallbacksAndMessages(null);
+        stopUpdateSeekBarProgress();
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
     }
 }
