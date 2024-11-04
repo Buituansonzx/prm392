@@ -7,25 +7,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.musicapp.AlbumManagement;
-import com.example.musicapp.AlbumsAdapter;
 import com.example.musicapp.DBHelper;
 import com.example.musicapp.PlaylistAdapter;
 import com.example.musicapp.R;
 import com.example.musicapp.SearchActivity;
 import com.example.musicapp.SettingActivity;
 import com.example.musicapp.UserActivity;
-import com.example.musicapp.model.Album;
 import com.example.musicapp.model.User;
 import com.example.musicapp.model.Song;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Home extends AppCompatActivity {
@@ -34,7 +29,6 @@ public class Home extends AppCompatActivity {
     private static final String TAG = "Home";
     private PlaylistAdapter playlistAdapter;
     private RecyclerView recyclerAlbum;
-    private AlbumsAdapter albumsAdapter;
     private int userId;
     private ImageView notificationIcon;
     private ImageView profileImage;
