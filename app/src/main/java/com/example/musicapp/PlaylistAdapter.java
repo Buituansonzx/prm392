@@ -15,14 +15,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.musicapp.controller.Play_song;
 import com.example.musicapp.model.Song;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlaylistViewHolder> {
 
-    private List<PlaylistItem> playlistItems;
+    private List<Song> songs; // Thay đổi từ PlaylistItem thành Song
+    private OnItemClickListener listener;
 
-    public PlaylistAdapter(List<PlaylistItem> playlistItems) {
-        this.playlistItems = playlistItems;
+    public interface OnItemClickListener {
+        void onItemClick(int position, List<Song> playlist);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public PlaylistAdapter(List<Song> songs) {
+        this.songs = songs;
     }
 
     @NonNull
@@ -35,16 +45,16 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
 
     @Override
     public void onBindViewHolder(@NonNull PlaylistViewHolder holder, int position) {
-        PlaylistItem currentItem = playlistItems.get(position);
-        holder.bind(currentItem);
+        Song currentSong = songs.get(position);
+        holder.bind(currentSong, position);
     }
 
     @Override
     public int getItemCount() {
-        return playlistItems.size();
+        return songs.size();
     }
 
-    public static class PlaylistViewHolder extends RecyclerView.ViewHolder {
+    public class PlaylistViewHolder extends RecyclerView.ViewHolder {
         private final ImageView playlistImage;
         private final TextView songNameText;
         private final TextView artistNameText;
@@ -56,9 +66,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
             artistNameText = itemView.findViewById(R.id.artist_name);
         }
 
-        public void bind(PlaylistItem item) {
-            Song song = item.getSong();
-
+        public void bind(Song song, int position) {
             // Set text
             songNameText.setText(song.getTitle());
             artistNameText.setText(song.getArtist());
@@ -81,39 +89,28 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.Playli
 
             // Set click listener
             itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), Play_song.class);
-                intent.putExtra("song", song);
-                v.getContext().startActivity(intent);
+                if (listener != null) {
+                    List<Song> playlist = new ArrayList<>(songs); // Sử dụng danh sách songs trực tiếp
+                    listener.onItemClick(position, playlist);
+                }
             });
         }
     }
 
-    public static class PlaylistItem {
-        private final Song song;
-
-        public PlaylistItem(Song song) {
-            this.song = song;
-        }
-
-        public Song getSong() {
-            return song;
-        }
-    }
-
     // Helper methods
-    public void updatePlaylist(List<PlaylistItem> newItems) {
-        this.playlistItems = newItems;
+    public void updatePlaylist(List<Song> newSongs) {
+        this.songs = newSongs;
         notifyDataSetChanged();
     }
 
-    public void addItem(PlaylistItem item) {
-        this.playlistItems.add(item);
-        notifyItemInserted(playlistItems.size() - 1);
+    public void addItem(Song song) {
+        this.songs.add(song);
+        notifyItemInserted(songs.size() - 1);
     }
 
     public void removeItem(int position) {
-        if (position >= 0 && position < playlistItems.size()) {
-            playlistItems.remove(position);
+        if (position >= 0 && position < songs.size()) {
+            songs.remove(position);
             notifyItemRemoved(position);
         }
     }
