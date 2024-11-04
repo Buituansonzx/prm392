@@ -339,8 +339,7 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT s.* FROM " + TABLE_SONGS + " s " +
                 "INNER JOIN " + TABLE_FAVORITE_SONGS + " fs ON s." + COLUMN_SONG_ID + " = fs." + COLUMN_FAVORITE_SONG_ID +
-                " WHERE fs." + COLUMN_FAVORITE_SONG_ID + " IN (SELECT " + COLUMN_FAVORITE_SONG_ID +
-                " FROM " + TABLE_FAVORITE_SONGS + " WHERE " + COLUMN_ID + " = ?)";
+                " WHERE fs." + COLUMN_ID + " = ?"; // Sửa COLUMN_FAVORITE_SONG_ID thành COLUMN_ID
         Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
 
         if (cursor.moveToFirst()) {
@@ -363,8 +362,116 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean removeFavoriteSong(int userId, int songId) {
         SQLiteDatabase db = this.getWritableDatabase();
+        // Sửa điều kiện WHERE để sử dụng COLUMN_FAVORITE_SONG_ID và COLUMN_ID
         int rowsAffected = db.delete(TABLE_FAVORITE_SONGS, COLUMN_FAVORITE_SONG_ID + " = ? AND " + COLUMN_ID + " = ?",
                 new String[]{String.valueOf(songId), String.valueOf(userId)});
         return rowsAffected > 0;
+    }
+    public boolean addListeningHistory(int userId, int songId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ID, userId); // Sửa COLUMN_USER_ID thành COLUMN_ID
+        values.put(COLUMN_SONG_ID, songId);
+        long result = db.insert(TABLE_LISTENING_HISTORY, null, values);
+        return result != -1;
+    }
+    public static class ListeningHistoryItem {
+        private int historyId;
+        private int userId;
+        private int songId;
+        private String songTitle;
+        private String artist;
+        private String timestamp;
+        public ListeningHistoryItem(int historyId, int userId, int songId,
+                                    String songTitle, String artist, String timestamp) {
+            this.historyId = historyId;
+            this.userId = userId;
+            this.songId = songId;
+            this.songTitle = songTitle;
+            this.artist = artist;
+            this.timestamp = timestamp;
+        }
+        // Getters
+        public int getHistoryId() { return historyId; }
+        public int getUserId() { return userId; }
+        public int getSongId() { return songId; }
+        public String getSongTitle() { return songTitle; }
+        public String getArtist() { return artist; }
+        public String getTimestamp() { return timestamp; }
+    }
+    public List<ListeningHistoryItem> getUserListeningHistory(int userId) {
+        List<ListeningHistoryItem> history = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT h." + COLUMN_HISTORY_ID + ", h." + COLUMN_ID +
+                ", h." + COLUMN_SONG_ID + ", s." + COLUMN_SONG_TITLE +
+                ", s." + COLUMN_ARTIST + ", h." + COLUMN_TIMESTAMP +
+                " FROM " + TABLE_LISTENING_HISTORY + " h" +
+                " JOIN " + TABLE_SONGS + " s ON h." + COLUMN_SONG_ID + " = s." + COLUMN_SONG_ID +
+                " WHERE h." + COLUMN_ID + " = ?" +
+                " ORDER BY h." + COLUMN_TIMESTAMP + " DESC";
+        try (Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)})) {
+            Log.d(TAG, "Executing query: " + query + " with userId: " + userId);
+            if (cursor.moveToFirst()) {
+                do {
+                    ListeningHistoryItem item = new ListeningHistoryItem(
+                            cursor.getInt(0),    // history_id
+                            cursor.getInt(1),    // user_id
+                            cursor.getInt(2),    // song_id
+                            cursor.getString(3),  // song_title
+                            cursor.getString(4),  // artist
+                            cursor.getString(5)   // timestamp
+                    );
+                    history.add(item);
+                } while (cursor.moveToNext());
+            } else {
+                Log.d(TAG, "No history found for userId: " + userId);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user listening history: " + e.getMessage());
+        }
+        Log.d(TAG, "Total history items retrieved: " + history.size());
+        return history;
+    }
+    // Xóa lịch sử nghe nhạc của một user
+    public boolean clearUserListeningHistory(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_LISTENING_HISTORY,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(userId)});
+        return rowsDeleted > 0;
+    }
+    //Lấy thông tin ng dùng qua sđt
+    public User getUserByPhoneNumber(String phoneNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        User user = null;
+        String[] columns = {COLUMN_ID, COLUMN_USERNAME, COLUMN_PASSWORD, COLUMN_PHONE, COLUMN_ROLE, COLUMN_IMAGE};
+        String selection = COLUMN_PHONE + " = ?";
+        String[] selectionArgs = {phoneNumber};
+        try (Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                byte[] imageBytes = cursor.getBlob(5);
+                user = new User(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4),
+                        imageBytes
+                );
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user by phone number: " + e.getMessage());
+        }
+        return user;
+    }
+    //Cập nhật mật khẩu trong forgot password
+    public boolean updateUserPassword(String phoneNumber, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PASSWORD, newPassword); // Giả sử COLUMN_PASSWORD là tên cột cho mật khẩu
+        String selection = COLUMN_PHONE + " = ?";
+        String[] selectionArgs = { phoneNumber };
+        int count = db.update(TABLE_USERS, values, selection, selectionArgs);
+        return count > 0; // Trả về true nếu cập nhật thành công
     }
 }

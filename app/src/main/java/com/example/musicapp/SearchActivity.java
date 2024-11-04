@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicapp.controller.Home;
+import com.example.musicapp.controller.Play_song;
 import com.example.musicapp.model.Song;
 import com.example.musicapp.SongAdapter; // Đảm bảo đã nhập đúng gói
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -32,6 +33,7 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
     private List<Song> filteredSongs; // Danh sách bài hát sau khi tìm kiếm
     private static final String TAG = "Search";
     private DBHelper dbHelper;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,12 +136,17 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
 
     @Override
     public void onSongClick(Song song) {
-        // Xử lý sự kiện khi nhấn vào bài hát
-        // Bạn có thể thêm logic để phát bài hát tại đây
+        Intent intent = new Intent(this, Play_song.class); // Thay "Play_song.class" bằng lớp phát nhạc của bạn
+        intent.putExtra("position", songList.indexOf(song)); // Truyền vị trí của bài hát trong danh sách
+        intent.putExtra("USER_ID", userId); // Nếu bạn cần truyền ID người dùng
+        startActivity(intent);
     }
 
     @Override
     public void onSongOptionsClick(Song song, View view) {
         // Xử lý sự kiện khi nhấn vào nút menu
     }
+
+
+    //Test git
 }
