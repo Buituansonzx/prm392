@@ -19,10 +19,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DBHelper";
     private static final String DATABASE_NAME = "MelodyBox.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String TABLE_USERS = "users";
     private static final String TABLE_SONGS = "songs";
     private static final String TABLE_ALBUMS = "albums";
+    private static final String TABLE_FAVORITE_SONGS = "favorite_songs";
     private static final String TABLE_LISTENING_HISTORY = "user_listening_history";
 
 
@@ -53,6 +54,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_HISTORY_ID = "history_id";
     public static final String COLUMN_TIMESTAMP = "timestamp";
 
+    // Thêm constant cho bảng FavoriteSongs
+    public static final String COLUMN_FAVORITE_ID = "favorite_id";
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -96,6 +99,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 + COLUMN_TIMESTAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, "
                 + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "), "
                 + "FOREIGN KEY(" + COLUMN_SONG_ID + ") REFERENCES " + TABLE_SONGS + "(" + COLUMN_SONG_ID + "))";
+        // Tạo bảng Favorite Songs
+        String createFavoriteSongsTable = "CREATE TABLE " + TABLE_FAVORITE_SONGS + "("
+                + COLUMN_FAVORITE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_USER_ID + " INTEGER NOT NULL, "
+                + COLUMN_SONG_ID + " INTEGER NOT NULL, "
+                + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "), "
+                + "FOREIGN KEY(" + COLUMN_SONG_ID + ") REFERENCES " + TABLE_SONGS + "(" + COLUMN_SONG_ID + "), "
+                + "UNIQUE(" + COLUMN_USER_ID + ", " + COLUMN_SONG_ID + "))";
 
 
         // Thực thi theo đúng thứ tự
@@ -103,12 +114,14 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createAlbumsTable);
         db.execSQL(createSongsTable);
         db.execSQL(createHistoryTable);
+        db.execSQL(createFavoriteSongsTable);
         Log.d(TAG, "Database tables created");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Xóa theo thứ tự ngược lại
+        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_FAVORITE_SONGS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LISTENING_HISTORY);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SONGS);    // Xóa Songs trước
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_ALBUMS);   // Xóa Albums sau
@@ -636,7 +649,61 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return user;
     }
+    public boolean addFavoriteSong(int userId, int songId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID, userId);
+        values.put(COLUMN_SONG_ID, songId);
 
+        long result = db.insert(TABLE_FAVORITE_SONGS, null, values);
+        return result != -1;
+    }
+
+    public boolean removeFavoriteSong(int userId, int songId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int rowsDeleted = db.delete(TABLE_FAVORITE_SONGS,
+                COLUMN_USER_ID + " = ? AND " + COLUMN_SONG_ID + " = ?",
+                new String[]{String.valueOf(userId), String.valueOf(songId)});
+        return rowsDeleted > 0;
+    }
+
+    public boolean isSongFavorite(int userId, int songId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_FAVORITE_SONGS, null,
+                COLUMN_USER_ID + " = ? AND " + COLUMN_SONG_ID + " = ?",
+                new String[]{String.valueOf(userId), String.valueOf(songId)},
+                null, null, null);
+        boolean isFavorite = cursor.getCount() > 0;
+        cursor.close();
+        return isFavorite;
+    }
+    public List<Song> getFavoriteSongs(int userId) {
+        List<Song> favoriteSongs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT s.* FROM " + TABLE_SONGS + " s "
+                + "INNER JOIN " + TABLE_FAVORITE_SONGS + " f ON s." + COLUMN_SONG_ID + " = f." + COLUMN_SONG_ID
+                + " WHERE f." + COLUMN_USER_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+
+        if (cursor.moveToFirst()) {
+            do {
+                Song song = new Song(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5),
+                        cursor.getBlob(6)
+                );
+                favoriteSongs.add(song);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return favoriteSongs;
+    }
     //Cập nhật mật khẩu trong forgot password
     public boolean updateUserPassword(String phoneNumber, String newPassword) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -649,7 +716,4 @@ public class DBHelper extends SQLiteOpenHelper {
         int count = db.update(TABLE_USERS, values, selection, selectionArgs);
         return count > 0; // Trả về true nếu cập nhật thành công
     }
-
-
-
 }
