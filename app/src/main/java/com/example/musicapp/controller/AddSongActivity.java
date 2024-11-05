@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,7 +34,6 @@ import java.util.concurrent.Executors;
 
 public class AddSongActivity extends AppCompatActivity {
 
-    private static final int PERMISSION_REQUEST_CODE = 1;
     private static final int PICK_IMAGE_REQUEST = 2;
     private static final int PERMISSION_REQUEST_STORAGE = 5;
 
@@ -45,6 +45,8 @@ public class AddSongActivity extends AppCompatActivity {
     private Button saveSongButton;
     private DBHelper dbHelper;
     private Uri selectedImageUri;
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,29 +78,26 @@ public class AddSongActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void checkPermissionAndOpenImageChooser() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSION_REQUEST_STORAGE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
+                        PERMISSION_REQUEST_STORAGE);
+            } else {
+                openImageChooser();
+            }
         } else {
             openImageChooser();
         }
     }
-    private byte[] getDefaultImageBytes() {
-        Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_song_image);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        defaultBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        return stream.toByteArray();
-    }
+
     private void openImageChooser() {
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Chọn ảnh"), PICK_IMAGE_REQUEST);
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
     @Override
@@ -108,7 +107,8 @@ public class AddSongActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openImageChooser();
             } else {
-                Toast.makeText(this, "Quyền truy cập bộ sưu tập bị từ chối", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Quyền truy cập bị từ chối. Một số tính năng có thể không hoạt động.", Toast.LENGTH_SHORT).show();
+                Log.d("AddSongActivity", "Permission denied for READ_MEDIA_IMAGES");
             }
         }
     }
@@ -117,26 +117,22 @@ public class AddSongActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            selectedImageUri = data.getData();  // Lưu URI của ảnh đã chọn
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-                songImageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Không thể đọc ảnh, vui lòng thử lại", Toast.LENGTH_SHORT).show();
-            }
+            selectedImageUri = data.getData();
+            getContentResolver().takePersistableUriPermission(selectedImageUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            songImageView.setImageURI(selectedImageUri);
         }
     }
+
     private void setupListeners() {
         selectImageButton.setOnClickListener(v -> checkPermissionAndOpenImageChooser());
         saveSongButton.setOnClickListener(v -> saveSong());
     }
+
     private void saveSong() {
-        // Validate input
         String title = titleEditText.getText().toString().trim();
         String artist = artistEditText.getText().toString().trim();
         String songUrl = songUrlEditText.getText().toString().trim();
-
 
         if (title.isEmpty() || artist.isEmpty() || songUrl.isEmpty()) {
             Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show();
@@ -145,20 +141,17 @@ public class AddSongActivity extends AppCompatActivity {
 
         byte[] imageBytes = getImageBytes();
         if (imageBytes == null) {
-            // Sử dụng ảnh mặc định
             imageBytes = getDefaultImageBytes();
         }
 
-        int albumId = 1; // Giả sử albumId là 1
-        int duration = 0; // Giả sử duration là 0
+        int albumId = 1;
+        int duration = 0;
 
-        // Hiển thị dialog progress
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Đang lưu bài hát...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        // Thực hiện lưu trong background
         byte[] finalImageBytes = imageBytes;
         executorService.execute(() -> {
             try {
@@ -183,7 +176,6 @@ public class AddSongActivity extends AppCompatActivity {
         });
     }
 
-    // Helper method để lấy bytes từ image
     private byte[] getImageBytes() {
         if (selectedImageUri == null) return null;
 
@@ -203,14 +195,18 @@ public class AddSongActivity extends AppCompatActivity {
         }
     }
 
+    private byte[] getDefaultImageBytes() {
+        Bitmap defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_song_image);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        defaultBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
+    }
+
     @Override
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
     }
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-// Trong phương thức saveSong()
 
     @Override
     protected void onDestroy() {
