@@ -47,7 +47,9 @@
 
         <activity
             android:name=".controller.ManagerUserActivity"
-            android:exported="true" />
+            android:exported="true" >
+
+        </activity>
 
         <activity android:name=".forgotpass.ResetPasswordActivity">
 
