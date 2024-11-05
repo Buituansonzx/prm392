@@ -11,7 +11,7 @@ import com.example.musicapp.R;
 public class HomeAdminActivity extends AppCompatActivity {
     private Button btnManageUsers;
     private Button btnManageSongs;
-
+    private Button btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,7 @@ public class HomeAdminActivity extends AppCompatActivity {
     private void initializeViews() {
         btnManageUsers = findViewById(R.id.btn_manager_user);
         btnManageSongs = findViewById(R.id.btn_manager_song);
+        btnLogout = findViewById(R.id.buttonLogout);
     }
 
     private void setupClickListeners() {
@@ -44,6 +45,10 @@ public class HomeAdminActivity extends AppCompatActivity {
             }
         });
 
+        btnLogout.setOnClickListener(view -> {
+            Intent intent = new Intent(this, login.class);
+            startActivity(intent);
+        });
 
 //        btnProfile.setOnClickListener(v -> navigateToActivity(ProfileActivity.class));
     }
