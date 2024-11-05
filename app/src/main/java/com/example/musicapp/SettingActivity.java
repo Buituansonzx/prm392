@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+
 import com.example.musicapp.controller.Home;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -65,34 +66,34 @@ public class SettingActivity extends AppCompatActivity {
         });
 
         // Lấy trạng thái Dark Mode từ SharedPreferences
-//        boolean isDarkModeEnabled = sharedPreferences.getBoolean("dark_mode", false);
-//        switchDarkMode.setChecked(isDarkModeEnabled);
-//
-//        // Áp dụng chế độ Dark Mode khi khởi động Activity
-//        AppCompatDelegate.setDefaultNightMode(isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
-//
-//        // Lắng nghe sự thay đổi trạng thái của switch Dark Mode
-//        switchDarkMode.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            if (isChecked) {
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-//                editor.putBoolean("dark_mode", true);
-//                Toast.makeText(this, "Dark Mode Enabled", Toast.LENGTH_SHORT).show();
-//            } else {
-//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-//                editor.putBoolean("dark_mode", false);
-//                Toast.makeText(this, "Dark Mode Disabled", Toast.LENGTH_SHORT).show();
-//            }
-//            editor.apply(); // Lưu trạng thái Dark Mode
-//        });
-//
-//        // Xử lý logic cho switch Notifications
-//        switchNotifications.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
-//            if (isChecked) {
-//                Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show();
-//            } else {
-//                Toast.makeText(this, "Notifications Disabled", Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        boolean isDarkModeEnabled = sharedPreferences.getBoolean("dark_mode", false);
+        switchDarkMode.setChecked(isDarkModeEnabled);
+
+        // Áp dụng chế độ Dark Mode khi khởi động Activity
+        AppCompatDelegate.setDefaultNightMode(isDarkModeEnabled ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
+        // Lắng nghe sự thay đổi trạng thái của switch Dark Mode
+        switchDarkMode.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (isChecked) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                editor.putBoolean("dark_mode", true);
+                Toast.makeText(this, "Dark Mode Enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                editor.putBoolean("dark_mode", false);
+                Toast.makeText(this, "Dark Mode Disabled", Toast.LENGTH_SHORT).show();
+            }
+            editor.apply(); // Lưu trạng thái Dark Mode
+        });
+
+        // Xử lý logic cho switch Notifications
+        switchNotifications.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            if (isChecked) {
+                Toast.makeText(this, "Notifications Enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Notifications Disabled", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
