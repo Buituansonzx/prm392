@@ -105,4 +105,14 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/nav_menu" />
 
+    <Button
+        android:id="@+id/btn_listening_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Listening History"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
