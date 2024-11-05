@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,7 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.example.musicapp.controller.Home;
+import com.example.musicapp.controller.Home; // Đảm bảo Home nằm trong gói này
 import com.example.musicapp.model.User;
 
 import java.io.ByteArrayOutputStream;
@@ -50,31 +49,30 @@ public class UserActivity extends AppCompatActivity {
         // Khởi tạo DBHelper
         dbHelper = new DBHelper(this);
 
+        // Tải thông tin người dùng
+        loadUserData();
+
         // Nhận userId từ Intent
-        userId = getIntent().getIntExtra("USER_ID", -1);
+        userId = getIntent().getIntExtra("USER_ID", -1); // Nhận userId
         if (userId == -1) {
             Toast.makeText(this, "Invalid user ID", Toast.LENGTH_SHORT).show();
             finish(); // Kết thúc activity nếu không có userId hợp lệ
-            return;
         }
-
-        // Tải thông tin người dùng
-        loadUserData();
 
         // Thiết lập BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_user);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             Intent intent = null;
-            if (item.getItemId() == R.id.nav_user) {
+            if(item.getItemId() == R.id.nav_user){
                 return true;
-            } else if (item.getItemId() == R.id.nav_home) {
+            }else if(item.getItemId() == R.id.nav_home){
                 intent = new Intent(this, Home.class);
                 intent.putExtra("USER_ID", userId);
-            } else if (item.getItemId() == R.id.nav_setting) {
+            }else if(item.getItemId() == R.id.nav_setting){
                 intent = new Intent(this, SettingActivity.class);
                 intent.putExtra("USER_ID", userId);
-            } else if (item.getItemId() == R.id.nav_search) {
+            }else if(item.getItemId() == R.id.nav_search){
                 intent = new Intent(this, SearchActivity.class);
                 intent.putExtra("USER_ID", userId);
             }
@@ -96,24 +94,20 @@ public class UserActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        // Lấy thông tin người dùng từ DB dựa trên userId được truyền vào Intent
-        currentUser = dbHelper.getUserById(userId);
+        // Lấy thông tin người dùng từ DB (thay thế ID 1 bằng ID thực tế)
+        currentUser = dbHelper.getUserById(1); // Giả sử ID của người dùng là 1
 
         if (currentUser != null) {
             // Hiển thị thông tin người dùng
-            Log.d("UserActivity", "User data loaded successfully: " + currentUser.getUsername());
             editTextUsername.setText(currentUser.getUsername());
             textViewPhone.setText(currentUser.getPhoneNumber());
             if (currentUser.getImage() != null) {
                 // Chuyển đổi byte[] thành Bitmap và hiển thị
                 Bitmap bitmap = BitmapFactory.decodeByteArray(currentUser.getImage(), 0, currentUser.getImage().length);
                 imageViewProfile.setImageBitmap(bitmap);
-            } else {
-                Log.d("UserActivity", "No image data found for user.");
             }
         } else {
             Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
-            Log.d("UserActivity", "User data not found for ID: " + userId);
         }
     }
 
@@ -136,10 +130,8 @@ public class UserActivity extends AppCompatActivity {
         boolean isUpdated = dbHelper.updateUser(currentUser);
         if (isUpdated) {
             Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show();
-            Log.d("UserActivity", "User information updated successfully.");
         } else {
             Toast.makeText(this, "Cập nhật thông tin không thành công", Toast.LENGTH_SHORT).show();
-            Log.d("UserActivity", "Failed to update user information.");
         }
     }
 
@@ -162,10 +154,8 @@ public class UserActivity extends AppCompatActivity {
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                 byte[] imageBytes = stream.toByteArray();
                 currentUser.setImage(imageBytes); // Lưu trữ ảnh vào đối tượng User
-                Log.d("UserActivity", "Image selected and converted to byte array.");
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.e("UserActivity", "Error converting image to byte array.", e);
             }
         }
     }

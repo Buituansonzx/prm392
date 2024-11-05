@@ -20,14 +20,15 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Header cho màn hình -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Settings"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF"
-            android:paddingBottom="16dp" />
+                android:textColor="?attr/colorOnBackground"
+                android:paddingBottom="16dp" />
 
             <!-- Cài đặt thông báo -->
             <LinearLayout
@@ -42,7 +43,7 @@
                     android:layout_weight="1"
                     android:text="Enable Notifications"
                     android:textSize="18sp"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="?attr/colorOnBackground" />
 
                 <Switch
                     android:id="@+id/switch_notifications"
@@ -63,7 +64,7 @@
                     android:layout_weight="1"
                     android:text="Dark Mode"
                     android:textSize="18sp"
-                    android:textColor="#FFFFFF" /> <!-- Changed to white -->
+                    android:textColor="?attr/colorOnBackground" />
 
                 <Switch
                     android:id="@+id/switch_dark_mode"
@@ -77,16 +78,16 @@
                 android:layout_height="wrap_content"
                 android:text="Toggle notifications for updates and alerts."
                 android:textSize="14sp"
-                android:textColor="#FFFFFF"
-            android:paddingTop="8dp" />
+                android:textColor="?attr/colorOnBackground"
+                android:paddingTop="8dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Enable dark mode for a more comfortable viewing experience at night."
                 android:textSize="14sp"
-                android:textColor="#FFFFFF"
-            android:paddingTop="8dp" />
+                android:textColor="?attr/colorOnBackground"
+                android:paddingTop="8dp" />
         </LinearLayout>
     </ScrollView>
 
