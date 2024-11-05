@@ -2,10 +2,14 @@ package com.example.musicapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,13 +24,15 @@ public class ListeningHistoryAdapter extends RecyclerView.Adapter<ListeningHisto
 
     private final List<Song> songList;
     private final Context context;
+    private int userId;
 
-    public ListeningHistoryAdapter(List<Song> songList, Context context) {
+    public ListeningHistoryAdapter(List<Song> songList, Context context, int userId) {
         if (songList == null) {
             throw new IllegalArgumentException("songList cannot be null");
         }
         this.songList = songList;
         this.context = context;
+        this.userId = userId;
     }
 
     @NonNull
@@ -44,12 +50,20 @@ public class ListeningHistoryAdapter extends RecyclerView.Adapter<ListeningHisto
         if (song != null) {
             holder.titleTextView.setText(song.getTitle());
             holder.artistTextView.setText(song.getArtist());
+            // Chuyển đổi byte[] thành Bitmap và hiển thị
+            if (song.getImage() != null) {
+                Bitmap bitmap = BitmapFactory.decodeByteArray(song.getImage(), 0, song.getImage().length);
+                holder.imageView.setImageBitmap(bitmap);
+            } else {
+                // Đặt một hình ảnh mặc định nếu không có ảnh
+                holder.imageView.setImageResource(R.drawable.default_song_image);
+            }
         }
 
-        // Xử lý sự kiện khi bấm nút chi tiết
         holder.btnDetail.setOnClickListener(v -> {
             Intent intent = new Intent(context, Play_song.class);
-            intent.putExtra("position", position);
+            intent.putExtra("position", song.getId() - 1);
+            intent.putExtra("USER_ID", userId);
             context.startActivity(intent);
         });
     }
@@ -63,12 +77,14 @@ public class ListeningHistoryAdapter extends RecyclerView.Adapter<ListeningHisto
         TextView titleTextView;
         TextView artistTextView;
         Button btnDetail;
+        ImageView imageView;
 
         ListeningHistoryViewHolder(@NonNull View itemView) {
             super(itemView);
             titleTextView = itemView.findViewById(R.id.song_title);
             artistTextView = itemView.findViewById(R.id.artist_name);
             btnDetail = itemView.findViewById(R.id.btn_detail); // Đảm bảo bạn có button trong layout
+            imageView = itemView.findViewById(R.id.img_song);
         }
     }
 }

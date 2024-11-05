@@ -16,7 +16,7 @@ public class ListeningHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ListeningHistoryAdapter adapter;
-    private List<Song> songHistory; // Danh sách bài hát lịch sử nghe
+    private List<DBHelper.ListeningHistoryItem> listeningHistoryItems;
     private DBHelper dbHelper; // Đối tượng DBHelper để truy cập cơ sở dữ liệu
     private int userId; // ID của người dùng (có thể lấy từ SharedPreferences hoặc Intent)
 
@@ -35,18 +35,20 @@ public class ListeningHistoryActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Lấy danh sách bài hát từ lịch sử nghe của người dùng
-        songHistory = new ArrayList<>();
-        List<DBHelper.ListeningHistoryItem> historyItems = dbHelper.getUserListeningHistory(userId);
+        // Lấy danh sách lịch sử nghe của người dùng
+        listeningHistoryItems = dbHelper.getUserListeningHistory(userId); // Gọi phương thức
 
-        // Chuyển đổi lịch sử nghe thành danh sách bài hát
-        for (DBHelper.ListeningHistoryItem item : historyItems) {
-            // Tạo đối tượng Song từ thông tin bài hát
-            songHistory.add(new Song(item.getSongId(), item.getSongTitle(), item.getArtist(), 1, 240000, null, null));
+        // Lấy danh sách bài hát từ lịch sử nghe
+        List<Song> songList = new ArrayList<>();
+        for (DBHelper.ListeningHistoryItem item : listeningHistoryItems) {
+            Song song = dbHelper.getSongById(item.getSongId()); // Lấy bài hát từ ID
+            if (song != null) {
+                songList.add(song); // Thêm bài hát vào danh sách
+            }
         }
 
         // Tạo Adapter và gán vào RecyclerView
-        adapter = new ListeningHistoryAdapter(songHistory, this); // Truyền danh sách bài hát và context vào Adapter
+        adapter = new ListeningHistoryAdapter(songList, this, userId); // Truyền danh sách bài hát và context vào Adapter
         recyclerView.setAdapter(adapter);
 
         // Khởi tạo nút quay lại
