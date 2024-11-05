@@ -27,7 +27,6 @@ public class login extends AppCompatActivity {
     private DBHelper dbHelper;
     private TextView forgotPassTextView;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
