@@ -16,6 +16,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private Switch switchDarkMode, switchNotifications;
     private SharedPreferences sharedPreferences;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,18 +33,28 @@ public class SettingActivity extends AppCompatActivity {
         // Thiết lập item đã chọn là Setting
         bottomNavigationView.setSelectedItemId(R.id.nav_setting);
 
+        // Nhận userId từ Intent
+        userId = getIntent().getIntExtra("USER_ID", -1); // Nhận userId
+        if (userId == -1) {
+            Toast.makeText(this, "Invalid user ID", Toast.LENGTH_SHORT).show();
+            finish(); // Kết thúc activity nếu không có userId hợp lệ
+        }
+
         // Xử lý sự kiện chọn item trong BottomNavigationView
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             Intent intent = null;
 
-            if (item.getItemId() == R.id.nav_search) {
-                intent = new Intent(this, SearchActivity.class);
+            if (item.getItemId() == R.id.nav_setting) {
+                return true;
             } else if (item.getItemId() == R.id.nav_home) {
                 intent = new Intent(this, Home.class);
-            } else if (item.getItemId() == R.id.nav_setting) {
-                return true; // Đã ở SettingActivity
+                intent.putExtra("USER_ID", userId);
+            } else if (item.getItemId() == R.id.nav_search) {
+                intent = new Intent(this, SearchActivity.class);
+                intent.putExtra("USER_ID", userId);
             } else if (item.getItemId() == R.id.nav_user) {
                 intent = new Intent(this, UserActivity.class);
+                intent.putExtra("USER_ID", userId);
             }
 
             if (intent != null) {

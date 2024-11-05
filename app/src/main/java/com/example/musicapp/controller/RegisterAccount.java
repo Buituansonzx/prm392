@@ -52,7 +52,7 @@ public class RegisterAccount extends AppCompatActivity {
             return;
         }
         if (validateInput(username, password, confirmPassword, phoneNumber)) {
-            String role = "user";
+            String role = "admin";
 
             boolean success = dbHelper.addUser(username, password, phoneNumber, role,null);
 

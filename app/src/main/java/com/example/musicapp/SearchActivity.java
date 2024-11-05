@@ -103,8 +103,10 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
                 intent.putExtra("USER_ID", userId); // Truyền userId qua Intent
             }else if(item.getItemId() == R.id.nav_setting){
                 intent = new Intent(this, SettingActivity.class);
+                intent.putExtra("USER_ID", userId);
             }else if(item.getItemId() == R.id.nav_user){
                 intent = new Intent(this, UserActivity.class);
+                intent.putExtra("USER_ID", userId);
             }
             if (intent != null) {
                 startActivity(intent);
