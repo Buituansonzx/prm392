@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,6 +41,13 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        // Nhận userId từ Intent
+        userId = getIntent().getIntExtra("USER_ID", -1); // Nhận userId
+        if (userId == -1) {
+            Toast.makeText(this, "Invalid user ID", Toast.LENGTH_SHORT).show();
+            finish(); // Kết thúc activity nếu không có userId hợp lệ
+        }
 
         // Khởi tạo RecyclerView
         recyclerView = findViewById(R.id.recyclerView);
@@ -91,6 +100,7 @@ public class SearchActivity extends AppCompatActivity implements SongAdapter.OnS
                 return true;
             }else if(item.getItemId() == R.id.nav_home){
                 intent = new Intent(this, Home.class);
+                intent.putExtra("USER_ID", userId); // Truyền userId qua Intent
             }else if(item.getItemId() == R.id.nav_setting){
                 intent = new Intent(this, SettingActivity.class);
             }else if(item.getItemId() == R.id.nav_user){
