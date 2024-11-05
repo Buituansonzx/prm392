@@ -1,13 +1,16 @@
 package com.example.musicapp.controller;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.musicapp.DBHelper;
@@ -26,15 +29,25 @@ public class login extends AppCompatActivity {
     private TextView signUpTextView;
     private DBHelper dbHelper;
     private TextView forgotPassTextView;
+    private CheckBox remember;
+    SharedPreferences sharedPreferences ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         initializeViews();
         dbHelper = new DBHelper(this);
 
+        String name = sharedPreferences.getString("phoneNumber", "");
+        String Pass = sharedPreferences.getString("password", "");
+
+        phoneNumberEditText.setText(name);
+        passwordEditText.setText(Pass);
+        if(name.length()!=0&&Pass.length()!=0){
+            remember.setChecked(true);
+        }
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,9 +77,12 @@ public class login extends AppCompatActivity {
         loginButton = findViewById(R.id.btn_login);
         signUpTextView = findViewById(R.id.textView);
         forgotPassTextView = findViewById(R.id.forgotPass);
+        remember = findViewById(R.id.remember);
     }
 
     private void performLogin() {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         String phoneNumber = phoneNumberEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
@@ -88,18 +104,37 @@ public class login extends AppCompatActivity {
                     Toast.makeText(this, "Login Successful as User", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, Home.class);
                     intent.putExtra(EXTRA_USER_ID, user.getId());
+                    if (remember.isChecked()) {
 //                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        editor.putString("phoneNumber", phoneNumber); // Ví dụ: lưu một chuỗi
+                        editor.putString("password", password);       // Ví dụ: lưu một số nguyên
+                        editor.apply();
+                    } else {
+                        editor.clear();
+                        editor.apply();
+                    }
                     startActivity(intent);
                 } else if ("admin".equalsIgnoreCase(user.getRole())) {
                     Toast.makeText(this, "Login Successful as Admin", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, HomeAdminActivity.class);
                     intent.putExtra(EXTRA_USER_ID, user.getId());
 //                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    if (remember.isChecked()) {
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        editor.putString("phoneNumber", phoneNumber); // Ví dụ: lưu một chuỗi
+                        editor.putString("password", password);       // Ví dụ: lưu một số nguyên
+                        editor.apply();
+                    } else {
+                        editor.clear();
+                        editor.apply();
+                    }
                     startActivity(intent);
                 } else {
                     Toast.makeText(this, "Invalid user role", Toast.LENGTH_SHORT).show();
                 }
             } else {
+                editor.clear();
+                editor.apply();
                 Toast.makeText(this, "Invalid phone number or password", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
