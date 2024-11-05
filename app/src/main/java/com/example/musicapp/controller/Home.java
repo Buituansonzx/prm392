@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.musicapp.DBHelper;
+import com.example.musicapp.ListeningHistoryActivity;
 import com.example.musicapp.PlaylistAdapter;
 import com.example.musicapp.R;
 import com.example.musicapp.SearchActivity;
@@ -38,6 +40,7 @@ public class Home extends AppCompatActivity {
     private DBHelper dbHelper;
     private ExecutorService executorService;
     private Handler mainHandler;
+    private Button btnListeningHistory; // Nút điều hướng đến ListeningHistoryActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +66,7 @@ public class Home extends AppCompatActivity {
             setupBottomNavigation();
             setupRecyclerViews();
             loadSongsAndAlbums();
-            loadFavoriteSongs(); // Tải bài hát yêu thích
+            loadFavoriteSongs();
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "An error occurred: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -75,6 +78,7 @@ public class Home extends AppCompatActivity {
         notificationIcon = findViewById(R.id.icon_noti);
         profileImage = findViewById(R.id.circleImageView);
         recyclerFavorites = findViewById(R.id.recyclerFavorites); // Khởi tạo RecyclerView cho bài hát yêu thích
+        btnListeningHistory = findViewById(R.id.btn_listening_history); // Khởi tạo nút ListeningHistory
         Log.d(TAG, "Views initialized");
     }
     @Override
@@ -88,6 +92,12 @@ public class Home extends AppCompatActivity {
 
         profileImage.setOnClickListener(v -> {
             Intent intent = new Intent(this, UserActivity.class);
+            intent.putExtra("USER_ID", userId);
+            startActivity(intent);
+        });
+
+        btnListeningHistory.setOnClickListener(v -> { // Xử lý sự kiện bấm nút ListeningHistory
+            Intent intent = new Intent(Home.this, ListeningHistoryActivity.class);
             intent.putExtra("USER_ID", userId);
             startActivity(intent);
         });
@@ -191,6 +201,18 @@ public class Home extends AppCompatActivity {
 
     private void setupPlaylistItemClickListener() {
         playlistAdapter.setOnItemClickListener((position, playlist) -> {
+            Song selectedSong = playlist.get(position);
+
+            // Thêm bài hát vào lịch sử nghe nhạc
+            boolean isAdded = dbHelper.addListeningHistory(userId, selectedSong.getId());
+
+            if (isAdded) {
+                Log.d(TAG, "Added song to listening history: " + selectedSong.getTitle());
+            } else {
+                Log.e(TAG, "Failed to add song to listening history");
+            }
+
+            // Chuyển sang màn hình phát nhạc
             Intent intent = new Intent(Home.this, Play_song.class);
             intent.putExtra("position", position);
             intent.putExtra("USER_ID", userId);
@@ -200,10 +222,22 @@ public class Home extends AppCompatActivity {
 
     private void setupFavoriteItemClickListener() {
         favoritePlaylistAdapter.setOnItemClickListener((position, playlist) -> {
+            Song selectedSong = playlist.get(position);
+
+            // Thêm bài hát yêu thích vào lịch sử nghe nhạc
+            boolean isAdded = dbHelper.addListeningHistory(userId, selectedSong.getId());
+
+            if (isAdded) {
+                Log.d(TAG, "Added favorite song to listening history: " + selectedSong.getTitle());
+            } else {
+                Log.e(TAG, "Failed to add favorite song to listening history");
+            }
+
+            // Chuyển sang màn hình phát nhạc
             Intent intent = new Intent(Home.this, Play_song.class);
             intent.putExtra("position", position);
             intent.putExtra("USER_ID", userId);
-            intent.putExtra("IS_FAVORITE", true); // Mark as favorite
+            intent.putExtra("IS_FAVORITE", true); // Đánh dấu là bài hát yêu thích
             startActivity(intent);
         });
     }

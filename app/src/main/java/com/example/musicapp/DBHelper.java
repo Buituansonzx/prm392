@@ -19,7 +19,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String TAG = "DBHelper";
     private static final String DATABASE_NAME = "MelodyBox.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_USERS = "users";
     private static final String TABLE_SONGS = "songs";
     private static final String TABLE_ALBUMS = "albums";
@@ -58,6 +58,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_FAVORITE_ID = "favorite_id";
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        initializeDefaultAdmin();
     }
 
     @Override
@@ -116,8 +117,30 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(createHistoryTable);
         db.execSQL(createFavoriteSongsTable);
         Log.d(TAG, "Database tables created");
+        createDefaultAdmin(db);
     }
+    public void initializeDefaultAdmin() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Log.d(TAG, "Checking for admin account...");
 
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
+                COLUMN_ROLE + "=?", new String[]{"admin"},
+                null, null, null);
+
+        Log.d(TAG, "Number of admin accounts found: " + cursor.getCount());
+
+        if (cursor.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_USERNAME, "Admin");
+            values.put(COLUMN_PASSWORD, "admin123");
+            values.put(COLUMN_PHONE, "0123456789");
+            values.put(COLUMN_ROLE, "admin");
+
+            long result = db.insert(TABLE_USERS, null, values);
+            Log.d(TAG, "Admin account creation result: " + result);
+        }
+        cursor.close();
+    }
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Xóa theo thứ tự ngược lại
@@ -313,6 +336,24 @@ public class DBHelper extends SQLiteOpenHelper {
         long albumId = db.insert(TABLE_ALBUMS, null, values);
         cursor.close();
         return (int) albumId;
+    }
+    private void createDefaultAdmin(SQLiteDatabase db) {
+        // Kiểm tra xem admin đã tồn tại chưa
+        Cursor cursor = db.query(TABLE_USERS, new String[]{COLUMN_ID},
+                COLUMN_PHONE + "=?", new String[]{"0123456789"},
+                null, null, null);
+
+        if (cursor.getCount() == 0) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_USERNAME, "Admin");
+            values.put(COLUMN_PASSWORD, "admin123");
+            values.put(COLUMN_PHONE, "0123456789");
+            values.put(COLUMN_ROLE, "admin");
+
+            db.insert(TABLE_USERS, null, values);
+            Log.d(TAG, "Default admin account created");
+        }
+        cursor.close();
     }
     // Song methods
     public boolean addSong(String title, String artist, int albumId, int duration, String songUrl, byte[] image) {
@@ -716,4 +757,5 @@ public class DBHelper extends SQLiteOpenHelper {
         int count = db.update(TABLE_USERS, values, selection, selectionArgs);
         return count > 0; // Trả về true nếu cập nhật thành công
     }
+
 }

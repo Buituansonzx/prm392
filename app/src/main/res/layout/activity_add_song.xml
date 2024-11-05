@@ -103,20 +103,6 @@
                     android:text="Chọn file" />
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/durationEditText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Thời lượng (giây)"
-                    android:inputType="number" />
-            </com.google.android.material.textfield.TextInputLayout>
-
             <Button
                 android:id="@+id/saveSongButton"
                 android:layout_width="match_parent"

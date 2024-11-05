@@ -11,8 +11,7 @@ import com.example.musicapp.R;
 public class HomeAdminActivity extends AppCompatActivity {
     private Button btnManageUsers;
     private Button btnManageSongs;
-    private Button btnAnalytics;
-    private Button btnProfile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +25,6 @@ public class HomeAdminActivity extends AppCompatActivity {
     private void initializeViews() {
         btnManageUsers = findViewById(R.id.btn_manager_user);
         btnManageSongs = findViewById(R.id.btn_manager_song);
-        btnAnalytics = findViewById(R.id.btn_analytics);
-        btnProfile = findViewById(R.id.btn_profile);
     }
 
     private void setupClickListeners() {
@@ -47,13 +44,6 @@ public class HomeAdminActivity extends AppCompatActivity {
             }
         });
 
-        btnAnalytics.setOnClickListener(v -> {
-            if (checkAdminPermission()) {
-//                navigateToActivity(AnalyticsActivity.class);
-            } else {
-                showPermissionDeniedMessage();
-            }
-        });
 
 //        btnProfile.setOnClickListener(v -> navigateToActivity(ProfileActivity.class));
     }

@@ -26,7 +26,7 @@ public class login extends AppCompatActivity {
     private TextView signUpTextView;
     private DBHelper dbHelper;
     private TextView forgotPassTextView;
-
+    // int a ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -30,6 +30,7 @@ public class UserActivity extends AppCompatActivity {
     private Button buttonUpdate, buttonBack, buttonChangeImage;
     private User currentUser; // Biến lưu thông tin người dùng
     private DBHelper dbHelper; // Đối tượng DBHelper
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +52,13 @@ public class UserActivity extends AppCompatActivity {
         // Tải thông tin người dùng
         loadUserData();
 
+        // Nhận userId từ Intent
+        userId = getIntent().getIntExtra("USER_ID", -1); // Nhận userId
+        if (userId == -1) {
+            Toast.makeText(this, "Invalid user ID", Toast.LENGTH_SHORT).show();
+            finish(); // Kết thúc activity nếu không có userId hợp lệ
+        }
+
         // Thiết lập BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.nav_user);
@@ -60,10 +68,13 @@ public class UserActivity extends AppCompatActivity {
                 return true;
             }else if(item.getItemId() == R.id.nav_home){
                 intent = new Intent(this, Home.class);
+                intent.putExtra("USER_ID", userId);
             }else if(item.getItemId() == R.id.nav_setting){
                 intent = new Intent(this, SettingActivity.class);
+                intent.putExtra("USER_ID", userId);
             }else if(item.getItemId() == R.id.nav_search){
                 intent = new Intent(this, SearchActivity.class);
+                intent.putExtra("USER_ID", userId);
             }
             if (intent != null) {
                 startActivity(intent);
