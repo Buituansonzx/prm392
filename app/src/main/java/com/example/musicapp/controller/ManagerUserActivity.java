@@ -44,8 +44,6 @@ public class ManagerUserActivity extends AppCompatActivity {
         });
         userRecyclerView = findViewById(R.id.songRecyclerView);
         dbHelper = new DBHelper(this);
-        dbHelper.addUser("Admin","123456","0123456789","admin",null);
-        dbHelper.addUser("Admin2", "123456", "0123456788", "admin",null);
         setupRecyclerView();
         loadUserData();
     }

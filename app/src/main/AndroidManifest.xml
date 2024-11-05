@@ -24,8 +24,7 @@
 
         <activity
             android:name=".controller.AddSongActivity"
-            android:exported="true" >
-
+            android:exported="true">
         </activity>
 
         <activity
@@ -65,9 +64,7 @@
 
         <activity
             android:name=".controller.manage_song"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
+            android:exported="true">
         </activity>
 
         <activity
